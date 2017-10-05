@@ -1,5 +1,7 @@
 package songfinder;
 
+import java.util.HashMap;
+
 /**
  * Main class for SongFinder lab and projects.
  * @author srollins
@@ -12,7 +14,19 @@ public class Driver {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//TODO: Design program and complete main method.
+		//Create a hashmap whose key are "-input", "-output" and "-order".
+		//Check the args format.
+		
+		HashMap<String, String> command = new HashMap<String, String>();
+		for(int i = 0; i < 5; i++) {
+			command.put(args[i], args[i + 1]);
+		}
+		if(!command.keySet().contains("-input") || !command.keySet().contains("-output") || !command.keySet().contains("-order")) {
+			System.exit(1);
+		}
+		//Create a songBuilder in 
+		SongsBuilder songs = new SongsBuilder(command.get("-input"));
+		songs.writeFile(command.get("order"), command.get("-output"));
 	}
 
 }
