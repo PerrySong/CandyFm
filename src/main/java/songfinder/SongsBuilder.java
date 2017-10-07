@@ -1,5 +1,5 @@
 package songfinder;
-
+import com.google.gson.JsonArray;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -28,23 +28,29 @@ public class SongsBuilder {
 	//This method takes path as an input, add new songInfo object to the data menber - songLibrary.
 	//This method is only invoked in the readFile method.
 	private void processPath(Path path) {
-		File song = path.toFile();
-		try(FileReader file = new FileReader(song)) {
-			JsonParser parser = new JsonParser();
-			JsonElement elt = parser.parse(file.toString());
-			//!!! instanceof!!!
-			if(elt instanceof JsonObject) {
-				JsonObject jObject = (JsonObject)elt;
-				SongInfo newSong = new SongInfo(jObject.get("artist").getAsString(),
-						jObject.get("title").getAsString(), jObject.get("tag").getAsString(),
-						jObject.get("trackId").getAsString());
-				songsLibrary.addSong(newSong);
-				
-			}
-		} catch(IOException ioe) {
-			System.out.println("Exception in processPath: " + ioe);
-		}
 		
+		if(path.toString().toLowerCase().endsWith(".json")) {	
+			File song = path.toFile();
+			try(FileReader file = new FileReader(song)) {
+				JsonParser parser = new JsonParser();
+				JsonElement elt = parser.parse(file);
+				System.out.println("try file reader successful");
+				if(elt.isJsonObject()) {
+					JsonObject jObject = (JsonObject)elt;
+					System.out.println("elt is JsonObject: " + jObject.get("tags"));
+					
+					String artist = jObject.get("artist").getAsString();
+					String title = jObject.get("title").getAsString();
+					String trackId = jObject.get("track-id").getAsString();
+					JsonArray tags = jObject.get("tags").getAsJsonArray();
+			
+					SongInfo newSong = new SongInfo(artist, title, tags, trackId);
+					songsLibrary.addSong(newSong);
+				}
+			} catch(IOException ioe) {
+				System.out.println("Exception in processPath: " + ioe);
+			}
+		}
 	}
 	
 	
@@ -54,9 +60,10 @@ public class SongsBuilder {
 	private void readFile(String directory) {
 		Path path = Paths.get(directory);
 		try(Stream<Path> paths = Files.walk(path)) {
-			path.forEach(p -> processPath(p));
+			//Didn't print other file directory json file.
+			paths.forEach(p -> processPath(p));
 		} catch(Exception e) {
-			System.out.println("scanFile exception: " + e);
+			System.out.println("readFile exception: " + e);
 		}
 	}
 	
@@ -64,17 +71,14 @@ public class SongsBuilder {
 	// This method takes sortWay and writePath as parameters, write songs info in the given writePath
 	// in a wanted sortWay.
 	public void writeFile(String order,String writePath) {
-		
 		ArrayList<SongInfo> songsList = new ArrayList<SongInfo>();
 		if(order == "artist") {
 			songsList = this.songsLibrary.getSortedByArtist();
 		}
-		
 		Path outpath = Paths.get(order);
 		outpath.getParent().toFile().mkdir();
 		try(BufferedWriter output = Files.newBufferedWriter(outpath)){
 			// write files in different ways according to command.
-			
 			//1. When we write a songsByTitle.
 			if(order == "title") {
 				songsList = this.songsLibrary.getSortedByTitle();
@@ -103,6 +107,16 @@ public class SongsBuilder {
 			}
 		} catch(IOException ioe) {
 			System.out.println("Exception in writting file" + ioe);
+		}
+	}
+	
+	public void printString() {
+		ArrayList<SongInfo> a = songsLibrary.getSortedByTitle();
+		ArrayList<SongInfo> b = songsLibrary.getSortedByArtist();
+		TreeMap<String, TreeSet<String>> c = songsLibrary.getSortedByTag();
+		System.out.print("hey");
+		for(SongInfo song: a) {
+			System.out.print(song.getArist() + "printString !");
 		}
 	}
 }

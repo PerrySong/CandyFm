@@ -2,6 +2,10 @@ package songfinder;
 
 import java.util.TreeMap;
 import java.util.TreeSet;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +21,7 @@ public class SortedSongs {
 	}
 	
 	public void addSong(SongInfo newSong) {
+		System.out.println("add Song invoked");
 		this.addTitle(newSong);
 		this.addArtist(newSong);
 		this.addTag(newSong);
@@ -58,6 +63,9 @@ public class SortedSongs {
 	 */
 	//this method add SongInfo object and sort arraylist as above.
 	private void addArtist(SongInfo newSong) {
+		
+		
+		
 		this.sortedByArtist.add(newSong);
 		Collections.sort(sortedByArtist, new Comparator<SongInfo>() {
 			public int compare(SongInfo song1, SongInfo song2) {
@@ -75,23 +83,39 @@ public class SortedSongs {
 	//this method add SongInfo object into treemap and sort its key and its  
 	//value (arraylist).  
 	private void addTag(SongInfo newSong) {
-		
-		TreeSet value = this.sortedByTag.get(newSong.getTag());
-		value.add(newSong.getTrackId());
+		String key = new String();
+		JsonArray tags = newSong.getTag();
+		for(JsonElement tag: tags) {
+			if(tag != null) {
+				if(tag.isJsonArray()) {
+					key = ((JsonArray)tag).get(0).getAsString();
+				}
+			}
+			//If there already exist that key, we update the TreeSet of the key.
+			//If there is not taht key, we set the key and its value.
+			if(this.sortedByTag.containsKey(key) && key != null) {
+				TreeSet<String> value = this.sortedByTag.get(key);
+				value.add(newSong.getTrackId());
+			} else if(key != null) {
+				TreeSet<String> value = new TreeSet<String>();
+				value.add(newSong.getTrackId());
+				this.sortedByTag.put(key, value);
+			}
+		}
 	}
 	
 	//These method is for getting wanted songs' ArrayList.
 	
-	public ArrayList<SongInfo> getSortedByTitle(){
+	public ArrayList<SongInfo> getSortedByTitle() {
 		return this.sortedByTitle;
 	}
 	
-	public ArrayList<SongInfo> getSortedByArtist(){
+	public ArrayList<SongInfo> getSortedByArtist() {
 		return this.sortedByArtist;
 		
 	}
 	
-	public TreeMap<String, TreeSet<String>> getSortedByTag(){
+	public TreeMap<String, TreeSet<String>> getSortedByTag() {
 		return this.sortedByTag;
 	}
 	
