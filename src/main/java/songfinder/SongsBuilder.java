@@ -19,9 +19,10 @@ import com.google.gson.JsonParser;
 
 public class SongsBuilder {
 	
-	private SortedSongs songsLibrary;; 
+	private SortedSongs songsLibrary; 
 	
 	public SongsBuilder(String directory) {
+		this.songsLibrary = new SortedSongs(); 
 		this.readFile(directory);
 	}
 	
@@ -31,21 +32,24 @@ public class SongsBuilder {
 		
 		if(path.toString().toLowerCase().endsWith(".json")) {	
 			File song = path.toFile();
+			
+//			System.out.println(song.getName());
+			
 			try(FileReader file = new FileReader(song)) {
 				JsonParser parser = new JsonParser();
 				JsonElement elt = parser.parse(file);
-				System.out.println("try file reader successful");
+//				System.out.println("try file reader successful");
+				
 				if(elt.isJsonObject()) {
 					JsonObject jObject = (JsonObject)elt;
-					System.out.println("elt is JsonObject: " + jObject.get("tags"));
-					
+//					System.out.println("elt is JsonObject: " + jObject.get("tags"));
 					String artist = jObject.get("artist").getAsString();
 					String title = jObject.get("title").getAsString();
-					String trackId = jObject.get("track-id").getAsString();
+					String trackId = jObject.get("track_id").getAsString();
 					JsonArray tags = jObject.get("tags").getAsJsonArray();
-			
 					SongInfo newSong = new SongInfo(artist, title, tags, trackId);
-					songsLibrary.addSong(newSong);
+					songsLibrary.addSong(newSong);// there is a null pointer exception.
+					
 				}
 			} catch(IOException ioe) {
 				System.out.println("Exception in processPath: " + ioe);
@@ -59,39 +63,41 @@ public class SongsBuilder {
 	//This method is only invoked in this class constructor.
 	private void readFile(String directory) {
 		Path path = Paths.get(directory);
-		try(Stream<Path> paths = Files.walk(path)) {
-			//Didn't print other file directory json file.
+		Stream<Path> a;
+		try(Stream<Path> paths = Files.walk(path)){
 			paths.forEach(p -> processPath(p));
 		} catch(Exception e) {
-			System.out.println("readFile exception: " + e);
+			System.out.println("Input directory is invalid " + e);
+			
 		}
-	}
+	}	
 	
 	
 	// This method takes sortWay and writePath as parameters, write songs info in the given writePath
 	// in a wanted sortWay.
 	public void writeFile(String order,String writePath) {
 		ArrayList<SongInfo> songsList = new ArrayList<SongInfo>();
-		if(order == "artist") {
-			songsList = this.songsLibrary.getSortedByArtist();
-		}
-		Path outpath = Paths.get(order);
+		Path outpath = Paths.get(writePath);
 		outpath.getParent().toFile().mkdir();
 		try(BufferedWriter output = Files.newBufferedWriter(outpath)){
 			// write files in different ways according to command.
 			//1. When we write a songsByTitle.
-			if(order == "title") {
+			if(order.equals("title")) {
 				songsList = this.songsLibrary.getSortedByTitle();
 			}	
 			//2. When we write a songsByArtist.
-			if(order == "artist") {
+			if(order.equals("artist")) {
 				songsList = this.songsLibrary.getSortedByArtist();
 			}
 			// When we want to wirte songsByArtist or songsByTitle.
-			if(order != "tag") {
+			if(!order.equals("tag")) {
+				//System.out.print(songsList.get(2).getArist());
 				for(SongInfo song: songsList) {
-					output.write(song.getArist() + " - " + song.getTitle() + "\n");
+					output.write(song.getArtist() + " - " + song.getTitle() + "\n");
+					
 				}
+				
+			
 			} else {
 				TreeMap<String, TreeSet<String>> songsMap = songsLibrary.getSortedByTag();
 				Set<String> tags = songsLibrary.getSortedByTag().keySet();
@@ -116,7 +122,7 @@ public class SongsBuilder {
 		TreeMap<String, TreeSet<String>> c = songsLibrary.getSortedByTag();
 		System.out.print("hey");
 		for(SongInfo song: a) {
-			System.out.print(song.getArist() + "printString !");
+			System.out.print(song.getArtist() + "printString !");
 		}
 	}
 }

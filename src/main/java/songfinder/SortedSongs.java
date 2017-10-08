@@ -18,11 +18,14 @@ public class SortedSongs {
 	private TreeMap<String, TreeSet<String>> sortedByTag;
 	
 	public SortedSongs() {
+		this.sortedByTitle = new ArrayList<SongInfo>();
+		this.sortedByArtist = new ArrayList<SongInfo>();
+		this.sortedByTag = new TreeMap<String, TreeSet<String>>();
 	}
 	
 	public void addSong(SongInfo newSong) {
-		System.out.println("add Song invoked");
-		this.addTitle(newSong);
+//		System.out.println("add Song invoked");
+		this.addTitle(newSong); 		
 		this.addArtist(newSong);
 		this.addTag(newSong);
 	}
@@ -44,8 +47,8 @@ public class SortedSongs {
 			public int compare(SongInfo song1, SongInfo song2) {
 				if(song1.getTitle().compareTo(song2.getTitle()) != 0) {
 					return song1.getTitle().compareTo(song2.getTitle());
-				} else if(song1.getArist().compareTo(song2.getArist()) != 0) {
-					return song1.getArist().compareTo(song2.getArist());
+				} else if(song1.getArtist().compareTo(song2.getArtist()) != 0) {
+					return song1.getArtist().compareTo(song2.getArtist());
 				} else {
 					return song1.getTrackId().compareTo(song2.getTrackId());
 				}
@@ -63,14 +66,11 @@ public class SortedSongs {
 	 */
 	//this method add SongInfo object and sort arraylist as above.
 	private void addArtist(SongInfo newSong) {
-		
-		
-		
 		this.sortedByArtist.add(newSong);
 		Collections.sort(sortedByArtist, new Comparator<SongInfo>() {
 			public int compare(SongInfo song1, SongInfo song2) {
-				if(song1.getArist().compareTo(song2.getArist()) != 0) {
-					return song1.getArist().compareTo(song2.getArist());
+				if(song1.getArtist().compareTo(song2.getArtist()) != 0) {
+					return song1.getArtist().compareTo(song2.getArtist());
 				} else if(song1.getTitle().compareTo(song2.getTitle()) != 0) {
 					return song1.getTitle().compareTo(song2.getTitle());
 				} else {

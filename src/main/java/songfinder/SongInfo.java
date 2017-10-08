@@ -17,10 +17,10 @@ public class SongInfo {
 		this.title = title;
 		this.tags = tags;
 		this.trackId = trackId;
-		System.out.println("A songinfo object is created");
+//		System.out.println("A songinfo object is created");
 	}
 	
-	public String getArist() {
+	public String getArtist() {
 		return this.artist;
 	}
 	
