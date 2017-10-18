@@ -96,8 +96,6 @@ public class SongsBuilder {
 					output.write(song.getArtist() + " - " + song.getTitle() + "\n");
 					
 				}
-				
-			
 			} else {
 				TreeMap<String, TreeSet<String>> songsMap = songsLibrary.getSortedByTag();
 				Set<String> tags = songsLibrary.getSortedByTag().keySet();
