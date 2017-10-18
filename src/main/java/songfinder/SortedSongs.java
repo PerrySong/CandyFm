@@ -12,6 +12,10 @@ import java.util.Comparator;
 import java.util.List;
 public class SortedSongs {
 	
+	/*
+	 * This class store SongInfo object in different sort method.
+	 */
+	
 	private ArrayList<SongInfo> sortedByTitle;
 	private ArrayList<SongInfo> sortedByArtist;
 	//TreeMap sortedByTag key = Tag, value = trackId. 
@@ -45,11 +49,14 @@ public class SortedSongs {
 		//Collections! (!= Collection)
 		Collections.sort(sortedByTitle, new Comparator<SongInfo>() {
 			public int compare(SongInfo song1, SongInfo song2) {
+				//Compare the title first;
 				if(song1.getTitle().compareTo(song2.getTitle()) != 0) {
 					return song1.getTitle().compareTo(song2.getTitle());
 				} else if(song1.getArtist().compareTo(song2.getArtist()) != 0) {
+					//If they have same title, compare the artist.
 					return song1.getArtist().compareTo(song2.getArtist());
 				} else {
+					//If they have both same title, and artist, we compare its TrackId.
 					return song1.getTrackId().compareTo(song2.getTrackId());
 				}
 			}
@@ -69,11 +76,14 @@ public class SortedSongs {
 		this.sortedByArtist.add(newSong);
 		Collections.sort(sortedByArtist, new Comparator<SongInfo>() {
 			public int compare(SongInfo song1, SongInfo song2) {
+				//Compare the artist first.
 				if(song1.getArtist().compareTo(song2.getArtist()) != 0) {
 					return song1.getArtist().compareTo(song2.getArtist());
 				} else if(song1.getTitle().compareTo(song2.getTitle()) != 0) {
+					//If they have same artist, compare its title.
 					return song1.getTitle().compareTo(song2.getTitle());
 				} else {
+					//If they have same artist and title, comapare is TrackId.
 					return song1.getTrackId().compareTo(song2.getTrackId());
 				}
 			}

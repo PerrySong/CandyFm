@@ -2,6 +2,10 @@ package songfinder;
 
 import java.util.HashMap;
 
+/*
+ * This class if for parsing the command to make sure that the command is valid, and invoke the program.
+ */
+
 public class CommandParser {
 	
 	public static void commandParser(String[] args) {
@@ -28,4 +32,5 @@ public class CommandParser {
 			}
 		}	
 	}
+	
 }
