@@ -72,7 +72,8 @@ public class SongsBuilder {
 		}
 	}	
 	
-	
+//TODO: I recommend moving the writeFile functionality to your songs library. It will be more clear why when we
+//discuss concurrency.	
 	// This method takes sortWay and writePath as parameters, write songs info in the given writePath
 	// in a wanted sortWay.
 	public void writeFile(String order,String writePath) {
@@ -94,7 +95,6 @@ public class SongsBuilder {
 				//System.out.print(songsList.get(2).getArist());
 				for(SongInfo song: songsList) {
 					output.write(song.getArtist() + " - " + song.getTitle() + "\n");
-					
 				}
 			} else {
 				TreeMap<String, TreeSet<String>> songsMap = songsLibrary.getSortedByTag();
