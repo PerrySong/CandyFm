@@ -26,6 +26,7 @@ public class CommandParser {
 				if(!order.equals("title") && !order.equals("artist") && !order.equals("tag")) {
 					System.out.println("Check 2,4,6 args, they have some problems");
 				} else {
+//TODO: this is not really "Command Parsing" functionality. I recommend executing this code in the Driver.					
 					SongsBuilder songs = new SongsBuilder(input);
 					songs.writeFile(order, output);
 				}
