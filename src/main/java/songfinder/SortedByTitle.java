@@ -16,7 +16,6 @@ public class SortedByTitle implements Comparator<SongInfo> {
 	 *	Aerosmith - Cryin'
 	 */
 	//this method compare SongInfo as above.
-	
 	public int compare(SongInfo s1, SongInfo s2) {
 		if(s1.getTitle().compareTo(s2.getTitle()) != 0) {
 			return s1.getTitle().compareTo(s2.getTitle());

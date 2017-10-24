@@ -21,10 +21,8 @@ public class SortedSongs {
 	/*
 	 * This class store SongInfo object in different sort method.
 	 */
-//TODO: I do recommend that you use Maps instead of List data structures.
-//This will make it easier to access data in later projects.
-//I also recommend you use a sorted Map so that you do not have to do a sort each time.
-//The sorted data structure will insert in O(log n) whereas a full sort is an nlogn operation.		
+
+	
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTitleMap;
 	private TreeMap<String, TreeSet<SongInfo>> sortedByArtistMap;
 	//TreeMap sortedByTag key = Tag, value = trackId. 

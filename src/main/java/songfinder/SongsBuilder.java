@@ -74,14 +74,4 @@ public class SongsBuilder {
 		return this.songsLibrary;
 	}
 	
-	
-//	public void printString() {
-//		ArrayList<SongInfo> a = songsLibrary.getSortedByTitle();
-//		ArrayList<SongInfo> b = songsLibrary.getSortedByArtist();
-//		TreeMap<String, TreeSet<String>> c = songsLibrary.getSortedByTag();
-//		System.out.print("hey");
-//		for(SongInfo song: a) {
-//			System.out.print(song.getArtist() + "printString !");
-//		}
-//	}
 }
