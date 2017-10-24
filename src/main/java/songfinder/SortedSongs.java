@@ -6,10 +6,16 @@ import java.util.TreeSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 public class SortedSongs {
 	
 	/*
@@ -19,22 +25,26 @@ public class SortedSongs {
 //This will make it easier to access data in later projects.
 //I also recommend you use a sorted Map so that you do not have to do a sort each time.
 //The sorted data structure will insert in O(log n) whereas a full sort is an nlogn operation.		
-	private ArrayList<SongInfo> sortedByTitle;
-	private ArrayList<SongInfo> sortedByArtist;
+	private TreeMap<String, TreeSet<SongInfo>> sortedByTitleMap;
+	private TreeMap<String, TreeSet<SongInfo>> sortedByArtistMap;
 	//TreeMap sortedByTag key = Tag, value = trackId. 
-	private TreeMap<String, TreeSet<String>> sortedByTag;
+	private TreeMap<String, TreeSet<SongInfo>> sortedByTagMap;
 	
 	public SortedSongs() {
-		this.sortedByTitle = new ArrayList<SongInfo>();
-		this.sortedByArtist = new ArrayList<SongInfo>();
-		this.sortedByTag = new TreeMap<String, TreeSet<String>>();
+		this.sortedByTitleMap = new TreeMap<String, TreeSet<SongInfo>>();
+		this.sortedByArtistMap = new TreeMap<String, TreeSet<SongInfo>>();
+		this.sortedByTagMap = new TreeMap<String, TreeSet<SongInfo>>();
 	}
 	
 	public void addSong(SongInfo newSong) {
 //		System.out.println("add Song invoked");
-		this.addTitle(newSong); 		
-		this.addArtist(newSong);
-		this.addTag(newSong);
+		try {
+			this.addTitle(newSong); 		
+			this.addArtist(newSong);
+			this.addTag(newSong);
+		} catch(Exception e) {
+			System.err.println("add exception");
+		}
 	}
 /*
 	 * Data sorted by title will list the artist name, followed by a space, 
@@ -48,22 +58,15 @@ public class SortedSongs {
 	 */
 	//this method add SongInfo to arraylist and sort the arraylist as above.
 	private void addTitle(SongInfo newSong) {
-		this.sortedByTitle.add(newSong);
-		//Collections! (!= Collection)
-		Collections.sort(sortedByTitle, new Comparator<SongInfo>() {
-			public int compare(SongInfo song1, SongInfo song2) {
-				//Compare the title first;
-				if(song1.getTitle().compareTo(song2.getTitle()) != 0) {
-					return song1.getTitle().compareTo(song2.getTitle());
-				} else if(song1.getArtist().compareTo(song2.getArtist()) != 0) {
-					//If they have same title, compare the artist.
-					return song1.getArtist().compareTo(song2.getArtist());
-				} else {
-					//If they have both same title, and artist, we compare its TrackId.
-					return song1.getTrackId().compareTo(song2.getTrackId());
-				}
-			}
-		});
+		if(newSong != null && this.sortedByTitleMap.keySet().contains(newSong.getTitle())) {
+			TreeSet<SongInfo> oldSongsSet = sortedByTitleMap.get(newSong.getTitle());
+			oldSongsSet.add(newSong);
+		} else {
+			SortedByTitle sba = new SortedByTitle();
+			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(sba);
+			newSongsSet.add(newSong);
+			this.sortedByTitleMap.put(newSong.getTitle(), newSongsSet);
+		}
 	}
 	/*
 	 * Data sorted by artist will list the artist name, followed by a space, 
@@ -75,22 +78,18 @@ public class SortedSongs {
 	 * Tom Petty - A Higher Place (Album Version)
 	 */
 	//this method add SongInfo object and sort arraylist as above.
+	
+	
 	private void addArtist(SongInfo newSong) {
-		this.sortedByArtist.add(newSong);
-		Collections.sort(sortedByArtist, new Comparator<SongInfo>() {
-			public int compare(SongInfo song1, SongInfo song2) {
-				//Compare the artist first.
-				if(song1.getArtist().compareTo(song2.getArtist()) != 0) {
-					return song1.getArtist().compareTo(song2.getArtist());
-				} else if(song1.getTitle().compareTo(song2.getTitle()) != 0) {
-					//If they have same artist, compare its title.
-					return song1.getTitle().compareTo(song2.getTitle());
-				} else {
-					//If they have same artist and title, comapare is TrackId.
-					return song1.getTrackId().compareTo(song2.getTrackId());
-				}
-			}
-		});
+		if(newSong != null && this.sortedByArtistMap.keySet().contains(newSong.getArtist())) {
+			TreeSet<SongInfo> oldSongsSet = sortedByArtistMap.get(newSong.getArtist());
+			oldSongsSet.add(newSong);
+		} else {
+			SortedByArtist sba = new SortedByArtist();
+			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(sba);
+			newSongsSet.add(newSong);
+			this.sortedByArtistMap.put(newSong.getArtist(), newSongsSet);
+		}
 	}
 	
 	//this method add SongInfo object into treemap and sort its key and its  
@@ -98,6 +97,7 @@ public class SortedSongs {
 	private void addTag(SongInfo newSong) {
 		String key = new String();
 		JsonArray tags = newSong.getTag();
+		try {
 		for(JsonElement tag: tags) {
 			if(tag != null) {
 				if(tag.isJsonArray()) {
@@ -106,30 +106,68 @@ public class SortedSongs {
 			}
 			//If there already exist that key, we update the TreeSet of the key.
 			//If there is not taht key, we set the key and its value.
-			if(this.sortedByTag.containsKey(key) && key != null) {
-				TreeSet<String> value = this.sortedByTag.get(key);
-				value.add(newSong.getTrackId());
+			if(key != null && this.sortedByTagMap.keySet().contains(key) ) {
+				
+				TreeSet<SongInfo> value = this.sortedByTagMap.get(key);
+				value.add(newSong);
 			} else if(key != null) {
-				TreeSet<String> value = new TreeSet<String>();
-				value.add(newSong.getTrackId());
-				this.sortedByTag.put(key, value);
+				SortedByTrackId sbti = new SortedByTrackId();
+				TreeSet<SongInfo> value = new TreeSet<SongInfo>(sbti);
+				value.add(newSong);
+				this.sortedByTagMap.put(key, value);
 			}
+		}
+		} catch(Exception e) {
+			System.out.println("add Tag exception");
 		}
 	}
 	
-	//These method is for getting wanted songs' ArrayList.
-		
-	public ArrayList<SongInfo> getSortedByTitle() {
-		return this.sortedByTitle;
-	}
-	
-	public ArrayList<SongInfo> getSortedByArtist() {
-		return this.sortedByArtist;
-		
-	}
-	
-	public TreeMap<String, TreeSet<String>> getSortedByTag() {
-		return this.sortedByTag;
-	}
+	//TODO: I recommend moving the writeFile functionality to your songs library. It will be more clear why when we
+	//discuss concurrency.	
+		// This method takes sortWay and writePath as parameters, write songs info in the given writePath
+		// in a wanted sortWay.
+	public void writeFile(String order,String writePath) {
+		TreeMap<String, TreeSet<SongInfo>> songsMap = new TreeMap<String, TreeSet<SongInfo>>();
+		Path outpath = Paths.get(writePath);
+		outpath.getParent().toFile().mkdir();
+		try(BufferedWriter output = Files.newBufferedWriter(outpath)){
+			// write files in different ways according to command.
+			//1. When we write a songsByTitle.
+			if(order.equals("title")) {
+				songsMap = this.sortedByTitleMap;
+			}	
+			//2. When we write a songsByArtist.
+			if(order.equals("artist")) {
+				songsMap = this.sortedByArtistMap;
+			}
+			// When we want to wirte songsByArtist or songsByTitle.
+			if(!order.equals("tag")) {
+				//System.out.print(songsList.get(2).getArist());
+				Set<String> keys = songsMap.keySet();
+				for(String key: keys) {
+					TreeSet<SongInfo> songList = songsMap.get(key); 
+					for(SongInfo song: songList) {
+						output.write(song.getArtist() + " - " + song.getTitle() + "\n");
+					}
+				}
+			} else {
+				songsMap = this.sortedByTagMap;
+				Set<String> tags = this.sortedByTagMap.keySet();
+				for(String tag: tags) {
+					//Write every tag in the songsMap.
+					output.write(tag + ": ");
+					// For each tag, write every song's trackId which is in that tag.
+					for(SongInfo song: songsMap.get(tag)) {
+						output.write(song.getTrackId() + " ");
+					}
+					output.write("\n");
+				}
+			}
+		} catch(IOException ioe) {
+			System.out.println("Exception in writting file" + ioe);
+		}
+	}	
+
+	//there is a test.
 	
 }
