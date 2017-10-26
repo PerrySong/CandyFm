@@ -29,34 +29,25 @@ public class SongsBuilder {
 	//This method takes path as an input, add new songInfo object to the data menber - songLibrary.
 	//This method is only invoked in the readFile method.
 	private void processPath(Path path) {
-		
 		if(path.toString().toLowerCase().endsWith(".json")) {	
 			File song = path.toFile();
-			
-//			System.out.println(song.getName());
-			
 			try(FileReader file = new FileReader(song)) {
 				JsonParser parser = new JsonParser();
 				JsonElement elt = parser.parse(file);
-//				System.out.println("try file reader successful");
-				
 				if(elt.isJsonObject()) {
 					JsonObject jObject = (JsonObject)elt;
-//					System.out.println("elt is JsonObject: " + jObject.get("tags"));
 					String artist = jObject.get("artist").getAsString();
 					String title = jObject.get("title").getAsString();
 					String trackId = jObject.get("track_id").getAsString();
 					JsonArray tags = jObject.get("tags").getAsJsonArray();
 					SongInfo newSong = new SongInfo(artist, title, tags, trackId);
 					songsLibrary.addSong(newSong);// there is a null pointer exception.
-					
 				}
 			} catch(IOException ioe) {
 				System.out.println("Exception in processPath: " + ioe);
 			}
 		}
 	}
-	
 	
 	// This method take a directory as an input, walk trough each file in this directory, and
 	// call processPath method to convert each file to songInfo then add it to songLibrary.

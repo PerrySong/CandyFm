@@ -21,7 +21,6 @@ public class SortedSongs {
 	/*
 	 * This class store SongInfo object in different sort method.
 	 */
-
 	
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTitleMap;
 	private TreeMap<String, TreeSet<SongInfo>> sortedByArtistMap;
@@ -36,13 +35,9 @@ public class SortedSongs {
 	
 	public void addSong(SongInfo newSong) {
 //		System.out.println("add Song invoked");
-		try {
 			this.addTitle(newSong); 		
 			this.addArtist(newSong);
 			this.addTag(newSong);
-		} catch(Exception e) {
-			System.err.println("add exception");
-		}
 	}
 /*
 	 * Data sorted by title will list the artist name, followed by a space, 
@@ -77,7 +72,6 @@ public class SortedSongs {
 	 */
 	//this method add SongInfo object and sort arraylist as above.
 	
-	
 	private void addArtist(SongInfo newSong) {
 		if(newSong != null && this.sortedByArtistMap.keySet().contains(newSong.getArtist())) {
 			TreeSet<SongInfo> oldSongsSet = sortedByArtistMap.get(newSong.getArtist());
@@ -105,7 +99,6 @@ public class SortedSongs {
 			//If there already exist that key, we update the TreeSet of the key.
 			//If there is not taht key, we set the key and its value.
 			if(key != null && this.sortedByTagMap.keySet().contains(key) ) {
-				
 				TreeSet<SongInfo> value = this.sortedByTagMap.get(key);
 				value.add(newSong);
 			} else if(key != null) {
@@ -120,8 +113,6 @@ public class SortedSongs {
 		}
 	}
 	
-	//TODO: I recommend moving the writeFile functionality to your songs library. It will be more clear why when we
-	//discuss concurrency.	
 		// This method takes sortWay and writePath as parameters, write songs info in the given writePath
 		// in a wanted sortWay.
 	public void writeFile(String order,String writePath) {
@@ -165,7 +156,5 @@ public class SortedSongs {
 			System.out.println("Exception in writting file" + ioe);
 		}
 	}	
-
-	//there is a test.
 	
 }
