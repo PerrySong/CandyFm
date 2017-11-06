@@ -6,6 +6,8 @@ import java.util.TreeSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
+import readwritelock.ReentrantLock;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -16,7 +18,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
-public class SortedSongs {
+public class SongsLibrary {
 	
 	/*
 	 * This class store SongInfo object in different sort method.
@@ -26,18 +28,22 @@ public class SortedSongs {
 	private TreeMap<String, TreeSet<SongInfo>> sortedByArtistMap;
 	//TreeMap sortedByTag key = Tag, value = trackId. 
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTagMap;
+	private ReentrantLock rwl;
 	
-	public SortedSongs() {
+	public SongsLibrary() {
 		this.sortedByTitleMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByArtistMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByTagMap = new TreeMap<String, TreeSet<SongInfo>>();
+		this.rwl = new ReentrantLock();
 	}
 	
 	public void addSong(SongInfo newSong) {
 //		System.out.println("add Song invoked");
-			this.addTitle(newSong); 		
-			this.addArtist(newSong);
-			this.addTag(newSong);
+		this.rwl.lockWrite();	
+		this.addTitle(newSong); 		
+		this.addArtist(newSong);
+		this.addTag(newSong);
+		this.rwl.unlockWrite();	
 	}
 /*
 	 * Data sorted by title will list the artist name, followed by a space, 
@@ -51,6 +57,7 @@ public class SortedSongs {
 	 */
 	//this method add SongInfo to arraylist and sort the arraylist as above.
 	private void addTitle(SongInfo newSong) {
+		this.rwl.lockWrite();
 		if(newSong != null && this.sortedByTitleMap.keySet().contains(newSong.getTitle())) {
 			TreeSet<SongInfo> oldSongsSet = sortedByTitleMap.get(newSong.getTitle());
 			oldSongsSet.add(newSong);
@@ -60,6 +67,7 @@ public class SortedSongs {
 			newSongsSet.add(newSong);
 			this.sortedByTitleMap.put(newSong.getTitle(), newSongsSet);
 		}
+		this.rwl.unlockWrite();
 	}
 	/*
 	 * Data sorted by artist will list the artist name, followed by a space, 
@@ -73,6 +81,7 @@ public class SortedSongs {
 	//this method add SongInfo object and sort arraylist as above.
 	
 	private void addArtist(SongInfo newSong) {
+		this.rwl.lockWrite();
 		if(newSong != null && this.sortedByArtistMap.keySet().contains(newSong.getArtist())) {
 			TreeSet<SongInfo> oldSongsSet = sortedByArtistMap.get(newSong.getArtist());
 			oldSongsSet.add(newSong);
@@ -82,11 +91,13 @@ public class SortedSongs {
 			newSongsSet.add(newSong);
 			this.sortedByArtistMap.put(newSong.getArtist(), newSongsSet);
 		}
+		this.rwl.unlockWrite();
 	}
 	
 	//this method add SongInfo object into treemap and sort its key and its  
 	//value (arraylist).  
 	private void addTag(SongInfo newSong) {
+		this.rwl.lockWrite();
 		String key = new String();
 		JsonArray tags = newSong.getTag();
 		try {
@@ -111,11 +122,13 @@ public class SortedSongs {
 		} catch(Exception e) {
 			System.out.println("add Tag exception");
 		}
+		this.rwl.unlockWrite();
 	}
 	
 		// This method takes sortWay and writePath as parameters, write songs info in the given writePath
 		// in a wanted sortWay.
-	public void writeFile(String order,String writePath) {
+	public void saveToFile(String order,String writePath) {
+		this.rwl.lockRead();
 		TreeMap<String, TreeSet<SongInfo>> songsMap = new TreeMap<String, TreeSet<SongInfo>>();
 		Path outpath = Paths.get(writePath);
 		outpath.getParent().toFile().mkdir();
@@ -155,6 +168,7 @@ public class SortedSongs {
 		} catch(IOException ioe) {
 			System.out.println("Exception in writting file" + ioe);
 		}
+		this.rwl.unlockRead();
 	}	
 	
 }

@@ -17,27 +17,34 @@ public class Driver {
 	 */
 	
 	public static void main(String[] args) {
-		HashMap<String, String> command = new HashMap<String, String>();
-		if(args.length < 6) {
-			System.out.println("Not enough arguements.");
-		} else {
-			for(int i = 0; i < 5; i += 2) {
-				command.put(args[i], args[i + 1]);
+		
+		CommandParser command = new CommandParser();
+		try {
+			command.parse(args);
+			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.getMessage();
+		}
+		
+		String input = command.getInput();
+		String order = command.getOrder();
+		String output = command.getOutput();
+		
+		
+		if(input != null && order != null && output != null) {
+			int threads;
+			try {
+				threads = Integer.parseInt(command.getThreads());
+				if(threads < 1 || threads >1000) threads = 10;
+			} catch(Exception ignore) {
+				threads = 10;
+				System.out.println(666);
 			}
-			if(!command.keySet().contains("-input") || !command.keySet().contains("-output") || !command.keySet().contains("-order")) {
-				System.out.println("The command format is not correct!");
-			//Create a songBuilder in 
-			} else {	
-				String order = command.get("-order");
-				String input = command.get("-input");
-				String output = command.get("-output");
-				if(!order.equals("title") && !order.equals("artist") && !order.equals("tag")) {
-					System.out.println("Check 2,4,6 args, they have some problems");
-				} else {				
-					SongsBuilder songs = new SongsBuilder(input);
-					songs.getSongsLibrary().writeFile(order, output);
-				}
-			}
+			SongsBuilder songs = new SongsBuilder(input);
+			songs.buildMusicLibrary(threads);
+			songs.getSongsLibrary().saveToFile(order, output);
 		}
 	}	
+					
 }
