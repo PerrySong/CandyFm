@@ -30,7 +30,6 @@ public class SongsBuilder {
 		this.directory = directory;
 	}
 	
-	
 	public void buildMusicLibrary(int threads) {
 		Path path = Paths.get(this.directory);
 		ExecutorService threadPool = new ExecutorService(threads);

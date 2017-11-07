@@ -35,12 +35,10 @@ public class ExecutorService {
 	    }
     }
     
-    
 	public void shutdown() {
 		this.isRunning = false;
 	}
-	
-	
+
 	public void awaitTermination() {
 		synchronized(queue) {
 			queue.notifyAll();
@@ -54,7 +52,6 @@ public class ExecutorService {
 			
 		}
 	}
-	
 	
 	private class PoolWorker extends Thread {
 

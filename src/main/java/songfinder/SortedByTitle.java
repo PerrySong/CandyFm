@@ -5,6 +5,7 @@ import java.util.Comparator;
 import com.google.gson.JsonArray;
 
 public class SortedByTitle implements Comparator<SongInfo> {
+	
 	/*
 	 * Data sorted by title will list the artist name, followed by a space, 
 	 * followed by -, followed by a space, followed by title, followed by a new line, 

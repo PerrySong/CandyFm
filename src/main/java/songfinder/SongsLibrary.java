@@ -44,6 +44,7 @@ public class SongsLibrary {
 		this.addTag(newSong);
 		this.rwl.unlockWrite();	
 	}
+	
 /*
 	 * Data sorted by title will list the artist name, followed by a space, 
 	 * followed by -, followed by a space, followed by title, followed by a new line, 
@@ -55,6 +56,7 @@ public class SongsLibrary {
 	 *	Aerosmith - Cryin'
 	 */
 	//this method add SongInfo to arraylist and sort the arraylist as above.
+	
 	private void addTitle(SongInfo newSong) {
 		this.rwl.lockWrite();
 		if(newSong != null && this.sortedByTitleMap.keySet().contains(newSong.getTitle())) {
@@ -68,6 +70,7 @@ public class SongsLibrary {
 		}
 		this.rwl.unlockWrite();
 	}
+	
 	/*
 	 * Data sorted by artist will list the artist name, followed by a space, 
 	 * followed by -, followed by a space, followed by title, followed by a new 
@@ -95,6 +98,7 @@ public class SongsLibrary {
 	
 	//this method add SongInfo object into treemap and sort its key and its  
 	//value (arraylist).  
+	
 	private void addTag(SongInfo newSong) {
 		this.rwl.lockWrite();
 		String key = new String();
@@ -126,6 +130,7 @@ public class SongsLibrary {
 	
 		// This method takes sortWay and writePath as parameters, write songs info in the given writePath
 		// in a wanted sortWay.
+	
 	public void saveToFile(String order,String writePath) {
 		this.rwl.lockRead();
 		TreeMap<String, TreeSet<SongInfo>> songsMap = new TreeMap<String, TreeSet<SongInfo>>();

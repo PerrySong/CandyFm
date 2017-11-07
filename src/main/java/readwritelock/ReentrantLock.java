@@ -48,6 +48,7 @@ public class ReentrantLock {
 	 * Returns true if the invoking thread holds a read lock.
 	 * @return
 	 */
+	
 	public synchronized boolean hasRead() {
 		//Get the current thread id.
 		Long currentId = Thread.currentThread().getId();
@@ -61,6 +62,7 @@ public class ReentrantLock {
 	 * Returns true if the invoking thread holds a write lock.
 	 * @return
 	 */
+	
 	public synchronized boolean hasWrite() {
 		//Get the current thread id.
 		Long currentId = Thread.currentThread().getId();
@@ -75,6 +77,7 @@ public class ReentrantLock {
 	 * Returns true if successful.
 	 * @return
 	 */
+	
 	public synchronized boolean tryLockRead() {
 		//Only if no one has the write lock or the writeLock is on the current thread, retrun true.
 		Long currentId = Thread.currentThread().getId();
@@ -97,6 +100,7 @@ public class ReentrantLock {
 	 * Returns true if successful.
 	 * @return
 	 */	
+	
 	public synchronized boolean tryLockWrite() {
 		//If others hold the write lock or read lock, it can not get the writelock.
 		//If itself have a readlock, then it can not get the writelock.
@@ -118,6 +122,7 @@ public class ReentrantLock {
 	  * Blocking method that will return only when the read lock has been 
 	  * acquired.
 	  */	 
+	
 	 public synchronized void lockRead() {
 		 //While current tread can not get the key, we put the thread waiting.
 		 while(!this.tryLockRead()) {
@@ -133,6 +138,7 @@ public class ReentrantLock {
 	  * Releases the read lock held by the calling thread. Other threads may continue
 	  * to hold a read lock.
 	  */
+	 
 	 public synchronized void unlockRead() throws IllegalMonitorStateException {
 		 //Unlock an lock, we deduct 1 for the related thread. 
 		 Long currentId = Thread.currentThread().getId();
@@ -149,6 +155,7 @@ public class ReentrantLock {
 	  * Blocking method that will return only when the write lock has been 
 	  * acquired.
 	  */
+	 
 	 public synchronized void lockWrite() {
 		 //While current tread can not get the key, we put the thread waiting.
 		 while(!this.tryLockWrite()) {
@@ -164,6 +171,7 @@ public class ReentrantLock {
 	  * Releases the write lock held by the calling thread. The calling thread may continue to hold
 	  * a read lock.
 	  */
+	 
 	 public synchronized void unlockWrite() throws IllegalMonitorStateException {
 		//Unlock an lock, we deduct 1 for the related thread. 
 		 Long currentId = Thread.currentThread().getId();
@@ -174,4 +182,5 @@ public class ReentrantLock {
 		 //Notify all that lock might be available
 		 this.notifyAll();
 	 }
+	 
 }

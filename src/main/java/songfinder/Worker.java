@@ -11,6 +11,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class Worker implements Runnable{
+	
 	//This method add songs to SongsLibrary's data structure and write SongsLibrary file.
 	//This class take SongsLibrary object and directory as input, find the file and add songInfo to Library.
 	

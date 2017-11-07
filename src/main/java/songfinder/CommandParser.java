@@ -3,10 +3,12 @@ package songfinder;
 import java.util.HashMap;
 
 public class CommandParser {
+	
 /*
  * This class convert string command to HashMap. You can get order, input and output.
  * 
  */
+	
 	HashMap<String, String> command;
 	
 	public CommandParser() {
