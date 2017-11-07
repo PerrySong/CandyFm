@@ -30,9 +30,11 @@ public class SongsBuilder {
 		this.directory = directory;
 	}
 	
+	//This method is to process files in a given threads' number.
 	public void buildMusicLibrary(int threads) {
 		Path path = Paths.get(this.directory);
 		ExecutorService threadPool = new ExecutorService(threads);
+		//We process each json file that can be found under this directory.
 		try(Stream<Path> paths = Files.walk(path)) {
 			paths.forEach(p -> {
 				try {
@@ -44,8 +46,10 @@ public class SongsBuilder {
 			});
 		} catch(Exception e) {
 			System.out.println("Input directory is invalid" + e);
-		}	
+		}
+		//After we call .shutdown(), the queue should not accept another request. 
 		threadPool.shutdown();
+		//When we call .awaitTermination(), we wait all the executing threads to finish and join all the threads. 
 		threadPool.awaitTermination();
 	}	
 		

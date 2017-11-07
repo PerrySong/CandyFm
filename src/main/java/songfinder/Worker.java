@@ -23,7 +23,7 @@ public class Worker implements Runnable{
 		this.path = path;
 	}
 	
-	//This run add songInfo to songsLbrary.
+	//This method add songInfo to songsLbrary's data structure.
 	public void run() {
 		if(path.toString().toLowerCase().endsWith(".json")) {	
 			File song = path.toFile();

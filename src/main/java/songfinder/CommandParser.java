@@ -15,10 +15,12 @@ public class CommandParser {
 		this.command = new HashMap<String, String>();
 	}
 	 
+	//This method is to parse the arguments and update data member command.
 	public void parse(String[] args) throws Exception {
 		if(args.length < 6) {
 			throw new Exception("No enough arguements");
 		} else {
+			//Pair the arguments, so that they associate with the relative information.
 			for(int i = 0; i < args.length; i += 2) {
 				this.command.put(args[i], args[i + 1]);
 			}
