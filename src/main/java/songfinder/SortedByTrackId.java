@@ -3,7 +3,9 @@ package songfinder;
 import java.util.Comparator;
 
 public class SortedByTrackId implements Comparator<SongInfo>{
+	
 	public int compare(SongInfo s1, SongInfo s2) {
 		return s1.getTrackId().compareTo(s2.getTrackId());
 	}
+	
 }

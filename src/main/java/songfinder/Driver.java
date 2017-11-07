@@ -23,15 +23,11 @@ public class Driver {
 			command.parse(args);
 			
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.getMessage();
 		}
-		
 		String input = command.getInput();
 		String order = command.getOrder();
 		String output = command.getOutput();
-		
-		
 		if(input != null && order != null && output != null) {
 			int threads;
 			try {
@@ -39,7 +35,6 @@ public class Driver {
 				if(threads < 1 || threads >1000) threads = 10;
 			} catch(Exception ignore) {
 				threads = 10;
-				System.out.println(666);
 			}
 			SongsBuilder songs = new SongsBuilder(input);
 			songs.buildMusicLibrary(threads);

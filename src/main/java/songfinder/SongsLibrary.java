@@ -38,7 +38,6 @@ public class SongsLibrary {
 	}
 	
 	public void addSong(SongInfo newSong) {
-//		System.out.println("add Song invoked");
 		this.rwl.lockWrite();	
 		this.addTitle(newSong); 		
 		this.addArtist(newSong);

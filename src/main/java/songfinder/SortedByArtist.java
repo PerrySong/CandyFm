@@ -15,6 +15,7 @@ public class SortedByArtist implements Comparator<SongInfo>{
 	 * Tom Petty - A Higher Place (Album Version)
 	 */
 	//this method compare SongInfo as above.
+	
 	public int compare(SongInfo s1, SongInfo s2) {
 		if(s1.getArtist().compareTo(s2.getArtist()) != 0) {
 			return s1.getArtist().compareTo(s2.getArtist());
@@ -24,4 +25,5 @@ public class SortedByArtist implements Comparator<SongInfo>{
 			return s1.getTrackId().compareTo(s2.getTrackId());
 		}
 	}
+	
 }
