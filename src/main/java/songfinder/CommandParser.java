@@ -25,7 +25,7 @@ public class CommandParser {
 				try {
 					this.command.put(args[i], args[i + 1]);
 				} catch(Exception e) {
-					System.out.println("The number of arguements should be odd");
+					System.out.println("The number of arguements should not be odd");
 				}
 			}
 			if(!command.keySet().contains("-input") || !command.keySet().contains("-output") || !command.keySet().contains("-order")) {
