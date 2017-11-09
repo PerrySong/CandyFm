@@ -1,4 +1,4 @@
-package readwritelock;
+package threadpool;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -107,7 +107,7 @@ public class ReentrantLock {
 		//Otherwise, it can get the writeLock.
 		Long currentId = Thread.currentThread().getId();
 		//When the method is invoked, we add one key to related thread.
-		if(this.hasWrite() || writer.isEmpty() && reader.isEmpty()) {
+		if(this.hasWrite() || (writer.isEmpty() && reader.isEmpty())) {
 			if(!writer.containsKey(currentId)) {
 				 writer.put(currentId, 1);
 			 } else {

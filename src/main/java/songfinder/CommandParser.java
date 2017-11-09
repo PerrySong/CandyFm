@@ -22,7 +22,11 @@ public class CommandParser {
 		} else {
 			//Pair the arguments, so that they associate with the relative information.
 			for(int i = 0; i < args.length; i += 2) {
-				this.command.put(args[i], args[i + 1]);
+				try {
+					this.command.put(args[i], args[i + 1]);
+				} catch(Exception e) {
+					System.out.println("The number of arguements should be odd");
+				}
 			}
 			if(!command.keySet().contains("-input") || !command.keySet().contains("-output") || !command.keySet().contains("-order")) {
 				throw new Exception("The command format is not correct!");

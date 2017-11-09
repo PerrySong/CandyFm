@@ -1,9 +1,5 @@
 package songfinder;
 
-import java.util.HashMap;
-import java.util.Set;
-import java.util.TreeSet;
-
 /**
  * Main class for SongFinder lab and projects.
  * @author srollins

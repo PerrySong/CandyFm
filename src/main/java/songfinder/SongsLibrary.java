@@ -6,17 +6,13 @@ import java.util.TreeSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 
-import readwritelock.ReentrantLock;
+import threadpool.ReentrantLock;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Set;
 public class SongsLibrary {
 	
@@ -24,17 +20,24 @@ public class SongsLibrary {
 	 * This class store SongInfo object in different sort method.
 	 */
 	
+	//Method: addSong; saveToFile
+	
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTitleMap;
 	private TreeMap<String, TreeSet<SongInfo>> sortedByArtistMap;
 	//TreeMap sortedByTag key = Tag, value = trackId. 
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTagMap;
 	private ReentrantLock rwl;
-	
+	private final SortedByTitle sbt;
+	private final SortedByArtist sba;
+	private final SortedByTrackId sbti;
 	public SongsLibrary() {
 		this.sortedByTitleMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByArtistMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByTagMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.rwl = new ReentrantLock();
+		this.sbt = new SortedByTitle();
+		this.sba = new SortedByArtist();
+		this.sbti = new SortedByTrackId();
 	}
 	
 	public void addSong(SongInfo newSong) {
@@ -58,17 +61,14 @@ public class SongsLibrary {
 	//this method add SongInfo to arraylist and sort the arraylist as above.
 	
 	private void addTitle(SongInfo newSong) {
-		this.rwl.lockWrite();
 		if(newSong != null && this.sortedByTitleMap.keySet().contains(newSong.getTitle())) {
 			TreeSet<SongInfo> oldSongsSet = sortedByTitleMap.get(newSong.getTitle());
 			oldSongsSet.add(newSong);
 		} else {
-			SortedByTitle sba = new SortedByTitle();
-			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(sba);
+			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(this.sbt);
 			newSongsSet.add(newSong);
 			this.sortedByTitleMap.put(newSong.getTitle(), newSongsSet);
 		}
-		this.rwl.unlockWrite();
 	}
 	
 	/*
@@ -83,49 +83,43 @@ public class SongsLibrary {
 	//this method add SongInfo object and sort arraylist as above.
 	
 	private void addArtist(SongInfo newSong) {
-		this.rwl.lockWrite();
 		if(newSong != null && this.sortedByArtistMap.keySet().contains(newSong.getArtist())) {
 			TreeSet<SongInfo> oldSongsSet = sortedByArtistMap.get(newSong.getArtist());
 			oldSongsSet.add(newSong);
 		} else {
-			SortedByArtist sba = new SortedByArtist();
-			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(sba);
+			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(this.sba);
 			newSongsSet.add(newSong);
 			this.sortedByArtistMap.put(newSong.getArtist(), newSongsSet);
 		}
-		this.rwl.unlockWrite();
 	}
 	
 	//this method add SongInfo object into treemap and sort its key and its  
 	//value (arraylist).  
 	
 	private void addTag(SongInfo newSong) {
-		this.rwl.lockWrite();
 		String key = new String();
 		JsonArray tags = newSong.getTag();
 		try {
-		for(JsonElement tag: tags) {
-			if(tag != null) {
-				if(tag.isJsonArray()) {
-					key = ((JsonArray)tag).get(0).getAsString();
+			for(JsonElement tag: tags) {
+				if(tag != null) {
+					if(tag.isJsonArray()) {
+						key = ((JsonArray)tag).get(0).getAsString();
+					}
 				}
-			}
 			//If there already exist that key, we update the TreeSet of the key.
 			//If there is not taht key, we set the key and its value.
-			if(key != null && this.sortedByTagMap.keySet().contains(key) ) {
-				TreeSet<SongInfo> value = this.sortedByTagMap.get(key);
-				value.add(newSong);
-			} else if(key != null) {
-				SortedByTrackId sbti = new SortedByTrackId();
-				TreeSet<SongInfo> value = new TreeSet<SongInfo>(sbti);
-				value.add(newSong);
-				this.sortedByTagMap.put(key, value);
+				if(key != null && this.sortedByTagMap.keySet().contains(key) ) {
+					TreeSet<SongInfo> value = this.sortedByTagMap.get(key);
+					value.add(newSong);
+				} else if(key != null) {
+					TreeSet<SongInfo> value = new TreeSet<SongInfo>(this.sbti);
+					value.add(newSong);
+					this.sortedByTagMap.put(key, value);
+				}
 			}
-		}
 		} catch(Exception e) {
 			System.out.println("add Tag exception");
 		}
-		this.rwl.unlockWrite();
 	}
 	
 		// This method takes sortWay and writePath as parameters, write songs info in the given writePath

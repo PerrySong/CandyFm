@@ -2,7 +2,7 @@ package songfinder;
 
 import java.util.Comparator;
 
-import com.google.gson.JsonArray;
+
 
 public class SortedByArtist implements Comparator<SongInfo>{
 	

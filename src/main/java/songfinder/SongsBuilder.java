@@ -1,29 +1,25 @@
 package songfinder;
-import com.google.gson.JsonArray;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
+
 import java.util.stream.Stream;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import threadpool.ExecutorService;
 
 public class SongsBuilder {
+	/*
+	 * This class provides method buildMusicLibrary and getSongsLibrary.
+	 * The constructor take the root directory as input, initialize the private data member: directory. 
+	 * Method BuildMusicLibrary take the number of threads as input, process each json file through certain amount of threads.
+	 * Method getSongsLibrary is to return the songsLibrary we have built.
+	 */
 	
 	private SongsLibrary songsLibrary; 
 	private String directory;
+	
+	//Method: SongsBuilder
 	
 	public SongsBuilder(String directory) {
 		this.songsLibrary = new SongsLibrary(); 

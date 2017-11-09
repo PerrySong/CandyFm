@@ -1,9 +1,8 @@
 package songfinder;
 
-import java.util.Iterator;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
+
 
 /*
  * This class store single song infomation
