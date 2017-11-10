@@ -22,6 +22,7 @@ public class CommandParser {
 		} else {
 			//Pair the arguments, so that they associate with the relative information.
 			for(int i = 0; i < args.length; i += 2) {
+//TODO: I recommend you avoid the exception rather than catch it. Change the condition so that you iterate while i < args.length-1				
 				try {
 					this.command.put(args[i], args[i + 1]);
 				} catch(Exception e) {
