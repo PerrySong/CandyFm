@@ -35,6 +35,7 @@ public class SongsBuilder {
 			paths.forEach(p -> {
 				try {
 					threadPool.execute(new Worker(this.getSongsLibrary(), p));
+//TODO: it is recommend you catch a specific type of exception where possible.					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
