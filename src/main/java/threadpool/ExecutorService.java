@@ -3,6 +3,8 @@ package threadpool;
 import java.util.LinkedList;
 import exception.AddToQueueException;
 
+//TODO: I recommend renaming the package to concurrent rather than threadpool.
+
 public class ExecutorService {
 /*
  * This class provides threadpool which can limit the number of threads when you rock your program concurrently.
@@ -10,6 +12,7 @@ public class ExecutorService {
 	
 	private final int nThreads;
 	private final PoolWorker[] threads;
+//TODO: queue does not need to be volatile.	
     private volatile LinkedList<Runnable> queue;
     private volatile boolean isRunning;
 	  
@@ -76,6 +79,7 @@ public class ExecutorService {
 				}	
                 // If we don't catch RuntimeException, 
                 // the pool could leak threads without noticing us.	
+//TODO: this condition shouldn't be necessary given your break condition above.				
 				if(r != null) {
 					try {
 						r.run();
