@@ -76,14 +76,13 @@ public class ExecutorService {
 				}	
                 // If we don't catch RuntimeException, 
                 // the pool could leak threads without noticing us.	
-				if(r != null) {
+				
 					try {
 						r.run();
 					} catch (RuntimeException e) {
 						System.out.println(e.getMessage());
 					}
-				}
-				r = null;// Reset r, so that in next loop, if r does not get request from queue, it won't run at all.
+				
 			}
 		}	
 	}
