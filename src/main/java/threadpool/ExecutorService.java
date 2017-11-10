@@ -76,13 +76,11 @@ public class ExecutorService {
 				}	
                 // If we don't catch RuntimeException, 
                 // the pool could leak threads without noticing us.	
-				
-					try {
-						r.run();
-					} catch (RuntimeException e) {
-						System.out.println(e.getMessage());
-					}
-				
+				try {
+					r.run();
+				} catch (RuntimeException e) {
+					System.out.println(e.getMessage());
+				}				
 			}
 		}	
 	}
