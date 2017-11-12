@@ -1,4 +1,4 @@
-package threadpool;
+package concurrent;
 
 import java.util.LinkedList;
 import exception.AddToQueueException;
