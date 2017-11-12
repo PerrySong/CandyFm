@@ -5,8 +5,8 @@ import java.nio.file.Paths;
 
 import java.util.stream.Stream;
 
+import concurrent.ExecutorService;
 import exception.AddToQueueException;
-import threadpool.ExecutorService;
 
 public class SongsBuilder {
 	/*
