@@ -3,14 +3,16 @@ package threadpool;
 import java.util.LinkedList;
 import exception.AddToQueueException;
 
+//TODO: I recommend renaming the package to concurrent rather than threadpool.
+
 public class ExecutorService {
 /*
  * This class provides threadpool which can limit the number of threads when you rock your program concurrently.
  */
 	
 	private final int nThreads;
-	private final PoolWorker[] threads;
-    private volatile LinkedList<Runnable> queue;
+	private final PoolWorker[] threads;	
+    private LinkedList<Runnable> queue;
     private volatile boolean isRunning;
 	  
     public ExecutorService(int nThreads) {
@@ -62,9 +64,6 @@ public class ExecutorService {
 			Runnable r = null;
 			while(true) {
 				synchronized(queue) {
-					// I think if in the block the condition is not satisfied, we can break the loop earlier.
-					//Cause inside of the synchronized block, no other thread will change "queue.isEmpty() && !isRunning"'s value
-					//So does this thread itself. We can break as early as possible.
 					while (queue.isEmpty() && isRunning) {
 						try {
 							queue.wait();
@@ -80,7 +79,7 @@ public class ExecutorService {
 					r.run();
 				} catch (RuntimeException e) {
 					System.out.println(e.getMessage());
-				}				
+				}
 			}
 		}	
 	}

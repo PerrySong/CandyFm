@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 
 import java.util.stream.Stream;
 
-
+import exception.AddToQueueException;
 import threadpool.ExecutorService;
 
 public class SongsBuilder {
@@ -33,12 +33,11 @@ public class SongsBuilder {
 		//We process each json file that can be found under this directory.
 		try(Stream<Path> paths = Files.walk(path)) {
 			paths.forEach(p -> {
-				try {
-					threadPool.execute(new Worker(this.getSongsLibrary(), p));
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-				
+					try {
+						threadPool.execute(new Worker(this.getSongsLibrary(), p));
+					} catch (AddToQueueException e) {
+						System.out.println(e.getMessage());
+					}
 			});
 		} catch(Exception e) {
 			System.out.println("Input directory is invalid" + e);
