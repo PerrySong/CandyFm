@@ -3,8 +3,6 @@ package concurrent;
 import java.util.LinkedList;
 import exception.AddToQueueException;
 
-//TODO: I recommend renaming the package to concurrent rather than threadpool.
-
 public class ExecutorService {
 /*
  * This class provides threadpool which can limit the number of threads when you rock your program concurrently.
