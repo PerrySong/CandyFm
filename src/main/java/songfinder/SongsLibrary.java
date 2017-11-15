@@ -5,6 +5,7 @@ import java.util.TreeSet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import concurrent.ReentrantLock;
 
@@ -13,6 +14,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Set;
 public class SongsLibrary {
 	
@@ -26,6 +31,8 @@ public class SongsLibrary {
 	private TreeMap<String, TreeSet<SongInfo>> sortedByArtistMap;
 	//TreeMap sortedByTag key = Tag, value = trackId. 
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTagMap;
+	private TreeMap<String, SongInfo> trackIdMap;
+	
 	private ReentrantLock rwl;
 	private final SortedByTitle sbt;
 	private final SortedByArtist sba;
@@ -34,6 +41,7 @@ public class SongsLibrary {
 		this.sortedByTitleMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByArtistMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByTagMap = new TreeMap<String, TreeSet<SongInfo>>();
+		this.trackIdMap = new TreeMap<String, SongInfo>();
 		this.rwl = new ReentrantLock();
 		this.sbt = new SortedByTitle();
 		this.sba = new SortedByArtist();
@@ -45,6 +53,7 @@ public class SongsLibrary {
 		this.addTitle(newSong); 		
 		this.addArtist(newSong);
 		this.addTag(newSong);
+		this.addTrackId(newSong);
 		this.rwl.unlockWrite();	
 	}
 	
@@ -122,6 +131,12 @@ public class SongsLibrary {
 		}
 	}
 	
+	private void addTrackId(SongInfo newSong) {
+		if(newSong != null) {
+			this.trackIdMap.put(newSong.getTrackId(), newSong);
+		}
+	}
+	
 		// This method takes sortWay and writePath as parameters, write songs info in the given writePath
 		// in a wanted sortWay.
 	
@@ -168,5 +183,137 @@ public class SongsLibrary {
 		}
 		this.rwl.unlockRead();
 	}	
+	
+//	The following method take input as artist's name, return a json Object like this:
+//	{
+//        "artist":"Busta Rhymes",
+//        "similars":[
+//           {
+//              "artist":"DJ Quik",
+//              "trackId":"TRAAMJY128F92F5919",
+//              "title":"Born and Raised In Compton"
+//           },
+//           {
+//              "artist":"Sticky Fingaz",
+//              "trackId":"TRAAZBD128F427A97D",
+//              "title":"Oh My God"
+//           }
+	
+	private JsonObject searchByArtist(String artist) {
+		JsonObject result = new JsonObject();
+		//Create JsonArray contains all the similar songs for the title as following.
+		JsonArray similarList = new JsonArray();
+		TreeSet<SongInfo> songsList = this.sortedByArtistMap.get(artist);
+		//Only if our library has the artist, we can find the similar songs.
+		ArrayList<JsonObject> similarArray = new ArrayList<JsonObject>();
+		if(songsList != null) {
+			for(SongInfo song: songsList) {
+				TreeSet<String> similarId = song.getSimilarId();
+				if(song.getSimilarId() != null) {
+					for(String id: similarId) {
+						if(this.trackIdMap.keySet().contains(id) && !similarArray.contains(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
+					}
+				}
+			}
+		}	
+		Collections.sort(similarArray, new Comparator<JsonObject>() {
+			@Override
+			public int compare(JsonObject obj1, JsonObject obj2) {
+				return (obj1.get("trackId").getAsString()).compareTo(obj2.get("trackId").getAsString());
+			}
+		});	
+		for(JsonObject jsobj: similarArray) {
+			similarList.add(jsobj);
+		}
+		//Create JsonObject 
+		result.addProperty("artist", artist);
+		result.add("similars", similarList);
+		return result;
+	}
+	
+	private JsonObject searchByTitle(String title) {
+		JsonObject result = new JsonObject();
+		JsonArray similarList = new JsonArray();
+		TreeSet<SongInfo> songsList = this.sortedByTitleMap.get(title);
+		if(songsList != null) {
+			for(SongInfo song: songsList) {
+				TreeSet<String> similarId = song.getSimilarId();
+				if(song.getSimilarId() != null) {
+					for(String id: similarId) {
+						if(this.trackIdMap.keySet().contains(id) && !similarList.contains(this.trackIdMap.get(id).castToJsonObject())) similarList.add(this.trackIdMap.get(id).castToJsonObject());
+					}
+				}
+			}
+		}
+		//Create JsonObject 
+		result.add("similars", similarList);
+		result.addProperty("title", title);
+		return result;
+	}
+	
+	private JsonObject searchByTag(String tag) {
+		TreeSet<SongInfo> songsList = this.sortedByTagMap.get(tag);
+		JsonArray similarList = new JsonArray();
+		JsonObject result = new JsonObject();
+		if(songsList != null) {
+			for(SongInfo song: songsList) {
+				similarList.add(song.castToJsonObject());
+			}
+		}	
+		result.add("similars", similarList);
+		result.addProperty("tag", tag);
+		return result;
+	}
+	
+	private JsonObject search(JsonObject request) {
+		JsonObject result = new JsonObject();
+		JsonArray artists = new JsonArray();
+		JsonArray titles = new JsonArray();
+		JsonArray tags = new JsonArray();
+		JsonArray arSimilars = new JsonArray();
+		JsonArray tiSimilars = new JsonArray();
+		JsonArray taSimilars = new JsonArray();
+		artists = request.getAsJsonArray("searchByArtist");
+		titles = request.getAsJsonArray("searchByTitle");
+		tags = request.getAsJsonArray("searchByTag");
+		if(artists != null && artists.size() >= 1) {
+			for(JsonElement artist: artists) {
+				arSimilars.add(searchByArtist(artist.getAsString()));	
+			}
+			result.add("searchByArtist", arSimilars);
+		}
+		
+		if(tags != null && tags.size() >= 1) {
+			for(JsonElement tag: tags) {				
+				taSimilars.add(searchByTag(tag.getAsString()));				
+			}
+			result.add("searchByTag", taSimilars);
+		}		
+		if(titles != null && titles.size() >= 1) {			
+			for(JsonElement title: titles) {
+				tiSimilars.add(searchByTitle(title.getAsString()));
+			}
+			result.add("searchByTitle", tiSimilars);
+		}
+		return result;
+	}
+	
+	public void saveSearchTaskResult(String writePath, JsonObject request) {	
+		this.rwl.lockRead();
+		
+		JsonObject result = this.search(request);	
+
+		Path outpath = Paths.get(writePath);
+		outpath.getParent().toFile().mkdir();
+		try(BufferedWriter output = Files.newBufferedWriter(outpath)) {	
+			
+			output.write(result.toString());
+		} catch (IOException e) {
+			System.out.println("Exception in saveSearchTaskResult in SongLibrary class!! " + e.getMessage());
+		}
+		
+		this.rwl.unlockRead();
+	}
+	
 	
 }

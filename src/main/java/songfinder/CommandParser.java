@@ -1,6 +1,14 @@
 package songfinder;
 
+import java.io.File;
+import java.io.FileReader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 public class CommandParser {
 	
@@ -9,10 +17,12 @@ public class CommandParser {
  * 
  */
 	
-	HashMap<String, String> command;
+	private HashMap<String, String> command;
+	private JsonObject searchRequest;
 	
 	public CommandParser() {
 		this.command = new HashMap<String, String>();
+		this.searchRequest = new JsonObject();
 	}
 	 
 	//This method is to parse the arguments and update data member command.
@@ -26,10 +36,22 @@ public class CommandParser {
 			}
 			if(!command.keySet().contains("-input") || !command.keySet().contains("-output") || !command.keySet().contains("-order")) {
 				throw new Exception("The command format is not correct!");
-			} else if(!command.get("order").equals("title") && !command.get("order").equals("artist") && !command.get("order").equals("tag")) {
+			} else if(!command.get("-order").equals("title") && !command.get("-order").equals("artist") && !command.get("-order").equals("tag")) {
 				throw new Exception("Check 2,4,6 args, they have some problems");
 			} 
+			
 		}
+		
+		Path path = Paths.get(this.command.get("-searchInput"));
+//		.out.println("search queries: " + this.command.get("-searchInput") + "asda");
+		if(path.toString().toLowerCase().endsWith(".json")) {	
+			File song = path.toFile();
+			try(FileReader file = new FileReader(song)) {
+				JsonParser parser = new JsonParser();
+				JsonElement elt = parser.parse(file);
+				this.searchRequest = (JsonObject)elt;
+			}
+		}	
 	}
 	
 	public String getInput() {
@@ -46,6 +68,16 @@ public class CommandParser {
 	
 	public String getThreads() {
 		return this.command.get("-threads");
+	}
+	
+	
+	
+	public String getSearchOutput() {
+		return this.command.get("-searchOutput");
+	}
+	
+	public JsonObject getSearchRequest() {
+		return this.searchRequest;
 	}
 	
 }

@@ -24,7 +24,7 @@ public class SearchTest {
 				"-threads", "5",
 				"-searchInput", ProjectTest.QUERIES_DIR + "/" + queriesFileName,
 				"-searchOutput", actualOutput.toString()};
-		
+		System.out.println(actualOutput.toString());
 		ProjectTest.checkProjectJsonOutput(testName, 
 				args,
 				actualOutput,
@@ -49,7 +49,7 @@ public class SearchTest {
 				"-threads", "5",
 				"-searchInput", ProjectTest.QUERIES_DIR + "/" + queriesFileName,
 				"-searchOutput", actualOutput.toString()};
-		
+		System.out.println("Look!!! " + queriesFileName);
 		ProjectTest.checkProjectJsonOutput(testName, 
 				args,
 				actualOutput,

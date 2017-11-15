@@ -1,5 +1,16 @@
 package songfinder;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 /**
  * Main class for SongFinder lab and projects.
  * @author srollins
@@ -20,7 +31,7 @@ public class Driver {
 			command.parse(args);
 		} catch (Exception e) {
 			//If the argument format is not right, we catch the exception.
-			e.getMessage();
+			System.out.println(e.getMessage());
 		}
 		String input = command.getInput();
 		String order = command.getOrder();
@@ -38,7 +49,14 @@ public class Driver {
 			SongsBuilder songs = new SongsBuilder(input);
 			//This method will build library in multithread way. 
 			songs.buildMusicLibrary(threads);
+
+
+
+			if(command.getSearchRequest() != null && command.getSearchOutput() != null) songs.getSongsLibrary().saveSearchTaskResult(command.getSearchOutput(), command.getSearchRequest());;
+			
+
 			songs.getSongsLibrary().saveToFile(order, output);
+			
 		}
 		
 	}	

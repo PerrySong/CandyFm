@@ -36,7 +36,10 @@ public class Worker implements Runnable{
 					String title = jObject.get("title").getAsString();
 					String trackId = jObject.get("track_id").getAsString();
 					JsonArray tags = jObject.get("tags").getAsJsonArray();
-					SongInfo newSong = new SongInfo(artist, title, tags, trackId);
+					JsonArray similarSongs = new JsonArray();
+					if(jObject.get("similars").getAsJsonArray() != null) similarSongs = jObject.get("similars").getAsJsonArray();
+					
+					SongInfo newSong = new SongInfo(artist, title, tags, trackId, similarSongs);
 					sl.addSong(newSong);// there is a null pointer exception.
 				}
 			} catch(IOException ioe) {
