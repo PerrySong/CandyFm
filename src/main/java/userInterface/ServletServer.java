@@ -43,8 +43,6 @@ public class ServletServer {
         		});
 		
 		servhandler.addServlet(SongsServlet.class, "/songs");
-		
-		
 		server.start();
 		server.join();
 	}
