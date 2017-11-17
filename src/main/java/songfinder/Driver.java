@@ -56,7 +56,7 @@ public class Driver {
 			
 
 			songs.getSongsLibrary().saveToFile(order, output);
-			
+			System.out.println(output);
 		}
 		
 	}	

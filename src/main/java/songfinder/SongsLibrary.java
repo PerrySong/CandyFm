@@ -199,7 +199,7 @@ public class SongsLibrary {
 //              "title":"Oh My God"
 //           }
 	
-	private JsonObject searchByArtist(String artist) {
+	public JsonObject searchByArtist(String artist) {
 		JsonObject result = new JsonObject();
 		//Create JsonArray contains all the similar songs for the title as following.
 		JsonArray similarList = new JsonArray();
@@ -211,6 +211,7 @@ public class SongsLibrary {
 				TreeSet<String> similarId = song.getSimilarId();
 				if(song.getSimilarId() != null) {
 					for(String id: similarId) {
+						//
 						if(this.trackIdMap.keySet().contains(id) && !similarArray.contains(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
 					}
 				}
@@ -231,7 +232,7 @@ public class SongsLibrary {
 		return result;
 	}
 	
-	private JsonObject searchByTitle(String title) {
+	public JsonObject searchByTitle(String title) {
 		JsonObject result = new JsonObject();
 		JsonArray similarList = new JsonArray();
 		TreeSet<SongInfo> songsList = this.sortedByTitleMap.get(title);
@@ -251,7 +252,7 @@ public class SongsLibrary {
 		return result;
 	}
 	
-	private JsonObject searchByTag(String tag) {
+	public JsonObject searchByTag(String tag) {
 		TreeSet<SongInfo> songsList = this.sortedByTagMap.get(tag);
 		JsonArray similarList = new JsonArray();
 		JsonObject result = new JsonObject();
@@ -315,5 +316,7 @@ public class SongsLibrary {
 		this.rwl.unlockRead();
 	}
 	
-	
+	public int size() {
+		return this.trackIdMap.size();
+	}
 }
