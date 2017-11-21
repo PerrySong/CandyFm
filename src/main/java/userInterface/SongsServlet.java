@@ -70,14 +70,14 @@ public class SongsServlet extends BaseServlet {
 		out.println("<thead><tr><th>Artist</th><th>Title</th></tr></thead>");
 		String artist = new String();
 		String title = new String();
+		String trackId = new String();
 		for(JsonElement obj: similars) {
 			artist = ((JsonObject)obj).get("artist").getAsString();
 			title = ((JsonObject)obj).get("title").getAsString();
+			trackId = ((JsonObject)obj).get("trackId").getAsString();
 			//Each artist is a link that has artist information
-			out.println("<tr><td> <a href =\"/artist?artistName=" + artist + "\">" + artist + "</a></td><td>" + title + "</td></tr>");
+			out.println("<tr><td> <a href =\"/artist?artistName=" + artist + "\">" + artist + "</a></td><td>" + "<a href =\"/SongInformation?trackId=" + trackId + "\">"+ title + "</td></tr>");
 		}
-		out.println(songs);
-		out.println(library.size());
 		out.println("</table>");
 		out.println("</body></html>");
 	}

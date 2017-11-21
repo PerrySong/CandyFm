@@ -32,6 +32,7 @@ public class ServletServer {
 		servhandler.addServlet(SongsServlet.class, "/search");
 		servhandler.addServlet(ArtistList.class, "/artists");
 		servhandler.addServlet(Artist.class, "/artist");
+		servhandler.addServlet(SongInformation.class, "/SongInformation");
 		server.start();
 		server.join();
 	}

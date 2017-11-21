@@ -367,6 +367,11 @@ public class SongsLibrary {
 		return this.sortedByArtistMap.keySet();
 	}
 	
+	//This Method take a song's Id as input, return a SongInfo object which have this Id.
+	public SongInfo getSong(String trackId) {
+		return this.trackIdMap.get(trackId);
+	}
+	
 	public int size() {
 		return trackIdMap.size();
 	}

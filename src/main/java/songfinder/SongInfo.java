@@ -78,6 +78,8 @@ public class SongInfo {
 		return songJson;
 	}
 	
-	
+	public String toString() {
+		return artist;
+	}
 	
 }
