@@ -10,7 +10,8 @@ import com.google.gson.JsonObject;
 
 
 /*
- * This class store single song infomation
+ * This class store single song informations.
+ * Public Method: getArtist, getTitle, getTag, getTrackId, getSimilarId, castToJsonObject. 
  */
 
 public class SongInfo {
@@ -31,6 +32,17 @@ public class SongInfo {
 		this.similarSongsId = new TreeSet<String>();
 		this.setSimilarId();
 	
+	}
+	
+	//This method is to store all similarId of the singInfo object in the data member similarSongId(treeset).
+	private void setSimilarId() {
+		for(JsonElement e: this.similarSong) {
+			if(e != null) {
+				if(e.isJsonArray()) {
+					this.similarSongsId.add(((JsonArray)e).get(0).getAsString());
+				}
+			}
+		}
 	}
 	
 	public String getArtist() {
@@ -56,17 +68,8 @@ public class SongInfo {
 	public TreeSet<String> getSimilarId() {
 		return this.similarSongsId;
 	}
-	
-	private void setSimilarId() {
-		for(JsonElement e: this.similarSong) {
-			if(e != null) {
-				if(e.isJsonArray()) {
-					this.similarSongsId.add(((JsonArray)e).get(0).getAsString());
-				}
-			}
-		}
-	}
-	
+
+	//This method is to cast a songInfo object to JsonObject, which is used in SongsLibrary's method: search().
 	public JsonObject castToJsonObject() {
 		JsonObject songJson = new JsonObject();
 		songJson.addProperty("artist", this.artist);

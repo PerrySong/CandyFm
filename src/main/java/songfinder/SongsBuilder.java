@@ -14,6 +14,8 @@ public class SongsBuilder {
 	 * The constructor take the root directory as input, initialize the private data member: directory. 
 	 * Method BuildMusicLibrary take the number of threads as input, process each json file through certain amount of threads.
 	 * Method getSongsLibrary is to return the songsLibrary we have built.
+	 * 
+	 * Method: buildMusicLibrary, getSongsLibrary.
 	 */
 	
 	private SongsLibrary songsLibrary; 

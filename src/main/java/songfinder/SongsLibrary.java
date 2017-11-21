@@ -23,16 +23,15 @@ public class SongsLibrary {
 	
 	/*
 	 * This class store SongInfo object in different sort method.
+	 * method: addSong, saveToFile, searchByArtist, searchByTitle, 
+	 * searchByTag, search, saveSearchTaskResult
 	 */
-	
-	//Method: addSong; saveToFile
-	
+
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTitleMap;
 	private TreeMap<String, TreeSet<SongInfo>> sortedByArtistMap;
 	//TreeMap sortedByTag key = Tag, value = trackId. 
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTagMap;
 	private TreeMap<String, SongInfo> trackIdMap;
-	
 	private ReentrantLock rwl;
 	private final SortedByTitle sbt;
 	private final SortedByArtist sba;
@@ -89,6 +88,7 @@ public class SongsLibrary {
 	 * Steel Rain - Loaded Like A Gun
 	 * Tom Petty - A Higher Place (Album Version)
 	 */
+	
 	//this method add SongInfo object and sort arraylist as above.
 	
 	private void addArtist(SongInfo newSong) {
@@ -102,7 +102,7 @@ public class SongsLibrary {
 		}
 	}
 	
-	//this method add SongInfo object into treemap and sort its key and its  
+	//this method add SongInfo object into treemap and sort its key(tags) and its  
 	//value (arraylist).  
 	
 	private void addTag(SongInfo newSong) {
@@ -131,9 +131,11 @@ public class SongsLibrary {
 		}
 	}
 	
+	//This method add trackId to trackIdMap.
+	
 	private void addTrackId(SongInfo newSong) {
 		if(newSong != null) {
-			this.trackIdMap.put(newSong.getTrackId(), newSong);
+			this.trackIdMap.put(newSong.getTrackId().toUpperCase(), newSong);
 		}
 	}
 	
@@ -184,7 +186,7 @@ public class SongsLibrary {
 		this.rwl.unlockRead();
 	}	
 	
-//	The following method take input as artist's name, return a json Object like this:
+//	The following method take input as artist's name, return all similar songs as a json Object like this:
 //	{
 //        "artist":"Busta Rhymes",
 //        "similars":[
@@ -200,6 +202,8 @@ public class SongsLibrary {
 //           }
 	
 	public JsonObject searchByArtist(String artist) {
+		this.rwl.lockRead();
+		
 		JsonObject result = new JsonObject();
 		//Create JsonArray contains all the similar songs for the title as following.
 		JsonArray similarList = new JsonArray();
@@ -209,10 +213,10 @@ public class SongsLibrary {
 		if(songsList != null) {
 			for(SongInfo song: songsList) {
 				TreeSet<String> similarId = song.getSimilarId();
-				if(song.getSimilarId() != null) {
+				if(similarId != null) {
 					for(String id: similarId) {
-						//
-						if(this.trackIdMap.keySet().contains(id) && !similarArray.contains(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
+						if(this.trackIdMap.keySet().contains(id) && !similarArray.contains
+								(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
 					}
 				}
 			}
@@ -229,30 +233,63 @@ public class SongsLibrary {
 		//Create JsonObject 
 		result.addProperty("artist", artist);
 		result.add("similars", similarList);
+		this.rwl.unlockRead();
 		return result;
 	}
 	
+//	The following method take input as title, return all similar songs as a json Object like this:
+//	{
+//        "artist":"Busta Rhymes",
+//        "similars":[
+//           {
+//              "artist":"DJ Quik",
+//              "trackId":"TRAAMJY128F92F5919",
+//              "title":"Born and Raised In Compton"
+//           },
+//           {
+//              "artist":"Sticky Fingaz",
+//              "trackId":"TRAAZBD128F427A97D",
+//              "title":"Oh My God"
+//           }
+	
 	public JsonObject searchByTitle(String title) {
+		this.rwl.lockRead();
+		
 		JsonObject result = new JsonObject();
 		JsonArray similarList = new JsonArray();
 		TreeSet<SongInfo> songsList = this.sortedByTitleMap.get(title);
+		ArrayList<JsonObject> similarArray = new ArrayList<JsonObject>();
 		if(songsList != null) {
 			for(SongInfo song: songsList) {
 				TreeSet<String> similarId = song.getSimilarId();
-				if(song.getSimilarId() != null) {
+				if(similarId != null) {
 					for(String id: similarId) {
-						if(this.trackIdMap.keySet().contains(id) && !similarList.contains(this.trackIdMap.get(id).castToJsonObject())) similarList.add(this.trackIdMap.get(id).castToJsonObject());
+						if(this.trackIdMap.keySet().contains(id) && !similarArray.contains
+								(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
 					}
 				}
 			}
 		}
+		Collections.sort(similarArray, new Comparator<JsonObject>() {
+			@Override
+			public int compare(JsonObject obj1, JsonObject obj2) {
+				return (obj1.get("trackId").getAsString()).compareTo(obj2.get("trackId").getAsString());
+			}
+		});
+		for(JsonObject jsobj: similarArray) {
+			similarList.add(jsobj);
+		}
 		//Create JsonObject 
 		result.add("similars", similarList);
 		result.addProperty("title", title);
+		this.rwl.unlockRead();
 		return result;
 	}
 	
+	//This method take tag as input, return all song under the tag as JsonObject.
 	public JsonObject searchByTag(String tag) {
+		this.rwl.lockRead();
+		
 		TreeSet<SongInfo> songsList = this.sortedByTagMap.get(tag);
 		JsonArray similarList = new JsonArray();
 		JsonObject result = new JsonObject();
@@ -263,9 +300,12 @@ public class SongsLibrary {
 		}	
 		result.add("similars", similarList);
 		result.addProperty("tag", tag);
+		this.rwl.unlockRead();
 		return result;
 	}
 	
+	
+	//This method take JsonObject as input, which contains the search request and return the search result as JsonObject.
 	private JsonObject search(JsonObject request) {
 		JsonObject result = new JsonObject();
 		JsonArray artists = new JsonArray();
@@ -274,49 +314,60 @@ public class SongsLibrary {
 		JsonArray arSimilars = new JsonArray();
 		JsonArray tiSimilars = new JsonArray();
 		JsonArray taSimilars = new JsonArray();
+		//Individually search by artist, by title and by tag. 
 		artists = request.getAsJsonArray("searchByArtist");
 		titles = request.getAsJsonArray("searchByTitle");
 		tags = request.getAsJsonArray("searchByTag");
+		//If the request contains "artist", we search each artist's similar song, and add it to a JsonArray.
 		if(artists != null && artists.size() >= 1) {
 			for(JsonElement artist: artists) {
 				arSimilars.add(searchByArtist(artist.getAsString()));	
 			}
+			//We add the JsonArray to result, associated with "searchByArtist".
 			result.add("searchByArtist", arSimilars);
 		}
-		
+		//If the request contains "tag", we search each tag's similar song, and add it to a JsonArray.
 		if(tags != null && tags.size() >= 1) {
 			for(JsonElement tag: tags) {				
 				taSimilars.add(searchByTag(tag.getAsString()));				
 			}
+			//We add the JsonArray to result, associated with "searchByTag".
 			result.add("searchByTag", taSimilars);
 		}		
+		//If the request contains title, we search each title's similar song, and add it to a JsonArray
 		if(titles != null && titles.size() >= 1) {			
 			for(JsonElement title: titles) {
 				tiSimilars.add(searchByTitle(title.getAsString()));
 			}
+			//We add the JsonArray to result, associated with "searchByTiltle".
 			result.add("searchByTitle", tiSimilars);
 		}
 		return result;
 	}
 	
+	//This method take JsonObject search request and save the result under the given directory.
 	public void saveSearchTaskResult(String writePath, JsonObject request) {	
 		this.rwl.lockRead();
-		
+		//Search songs according to request
 		JsonObject result = this.search(request);	
-
 		Path outpath = Paths.get(writePath);
+		//Create the file.
 		outpath.getParent().toFile().mkdir();
-		try(BufferedWriter output = Files.newBufferedWriter(outpath)) {	
-			
+		try(BufferedWriter output = Files.newBufferedWriter(outpath)) {
+			//Write the result to the file.
 			output.write(result.toString());
 		} catch (IOException e) {
 			System.out.println("Exception in saveSearchTaskResult in SongLibrary class!! " + e.getMessage());
 		}
-		
 		this.rwl.unlockRead();
 	}
 	
+	//This Method return the Artists list in alphabetical order. 
+	public Set<String> listArtists(){
+		return this.sortedByArtistMap.keySet();
+	}
+	
 	public int size() {
-		return this.trackIdMap.size();
+		return trackIdMap.size();
 	}
 }

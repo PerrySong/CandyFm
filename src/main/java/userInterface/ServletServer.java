@@ -15,33 +15,23 @@ import songfinder.SongsLibrary;
 public class ServletServer {
 	public static void main(String args[]) throws Exception {
 		
-		
-		
-		Server server = new Server(8082);
-		
+		Server server = new Server(8070);
 		ServletContextHandler servhandler = new ServletContextHandler(ServletContextHandler.SESSIONS);        
         server.setHandler(servhandler);
- 
         //Build the Songs library 
         SongsBuilder builder = new SongsBuilder("input");
         builder.buildMusicLibrary(10);
-        SongsLibrary library = builder.getSongsLibrary();
-        
-        
+        SongsLibrary library = builder.getSongsLibrary(); 
         servhandler.addEventListener(new ServletContextListener() {
-
         		public void contextDestroyed(ServletContextEvent sce) {
-				// TODO Auto-generated method stub	
         		}
-        		
 			public void contextInitialized(ServletContextEvent sce) {
 				sce.getServletContext().setAttribute(BaseServlet.DATA, library);//Where we initialize the data?
-				
 			}
-        	
-        		});
-		
-		servhandler.addServlet(SongsServlet.class, "/songs");
+        	});
+		servhandler.addServlet(SongsServlet.class, "/search");
+		servhandler.addServlet(ArtistList.class, "/artists");
+		servhandler.addServlet(Artist.class, "/artist");
 		server.start();
 		server.join();
 	}

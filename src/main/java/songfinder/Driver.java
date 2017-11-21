@@ -49,14 +49,11 @@ public class Driver {
 			SongsBuilder songs = new SongsBuilder(input);
 			//This method will build library in multithread way. 
 			songs.buildMusicLibrary(threads);
-
-
-
-			if(command.getSearchRequest() != null && command.getSearchOutput() != null) songs.getSongsLibrary().saveSearchTaskResult(command.getSearchOutput(), command.getSearchRequest());;
-			
-
+			//If there is a search rquest argument, we invoke the search method and save the search result in the required directory.
+			if(command.getSearchRequest() != null && command.getSearchOutput() != null) {
+				songs.getSongsLibrary().saveSearchTaskResult(command.getSearchOutput(), command.getSearchRequest());;
+			}
 			songs.getSongsLibrary().saveToFile(order, output);
-			System.out.println(output);
 		}
 		
 	}	

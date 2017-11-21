@@ -41,6 +41,7 @@ public class Worker implements Runnable{
 					
 					SongInfo newSong = new SongInfo(artist, title, tags, trackId, similarSongs);
 					sl.addSong(newSong);// there is a null pointer exception.
+					file.close();
 				}
 			} catch(IOException ioe) {
 				System.out.println("Exception in processPath: " + ioe);

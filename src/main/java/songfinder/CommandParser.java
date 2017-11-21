@@ -14,7 +14,9 @@ public class CommandParser {
 	
 /*
  * This class convert string command to HashMap. You can get order, input and output.
+ * Method: parse, getInput, getOutput, getOrder, getThreads, getSearchOutput, getSearchRequest.
  * 
+ * Work flow: initialize CommandParser object -> parse argument -> get(WhateverInfomation). 
  */
 	
 	private HashMap<String, String> command;
