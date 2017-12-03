@@ -40,6 +40,7 @@ public class ExecutorService {
     
 	public void shutdown() {
 		this.isRunning = false;
+		
 	}
 
 	public void awaitTermination() {
@@ -52,7 +53,6 @@ public class ExecutorService {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
 		}
 	}
 	

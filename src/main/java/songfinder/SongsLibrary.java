@@ -32,15 +32,23 @@ public class SongsLibrary {
 	//TreeMap sortedByTag key = Tag, value = trackId. 
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTagMap;
 	private TreeMap<String, SongInfo> trackIdMap;
+	private HashMap<String, String> artistParser;//The key is lower case value is normal case
+	private HashMap<String, String> titleParser;//The key is lower case value is normal case
+	private HashMap<String, String> tagParser;//The key is lower case value is normal case
+	
 	private ReentrantLock rwl;
 	private final SortedByTitle sbt;
 	private final SortedByArtist sba;
 	private final SortedByTrackId sbti;
+	
 	public SongsLibrary() {
 		this.sortedByTitleMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByArtistMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.sortedByTagMap = new TreeMap<String, TreeSet<SongInfo>>();
 		this.trackIdMap = new TreeMap<String, SongInfo>();
+		this.artistParser = new HashMap<String, String>();
+		this.titleParser = new HashMap<String, String>();
+		this.tagParser = new HashMap<String, String>();
 		this.rwl = new ReentrantLock();
 		this.sbt = new SortedByTitle();
 		this.sba = new SortedByArtist();
@@ -69,14 +77,17 @@ public class SongsLibrary {
 	//this method add SongInfo to arraylist and sort the arraylist as above.
 	
 	private void addTitle(SongInfo newSong) {
-		if(newSong != null && this.sortedByTitleMap.keySet().contains(newSong.getTitle())) {
-			TreeSet<SongInfo> oldSongsSet = sortedByTitleMap.get(newSong.getTitle());
+		String title = newSong.getTitle();
+		if(newSong != null && this.sortedByTitleMap.keySet().contains(title)) {
+			TreeSet<SongInfo> oldSongsSet = sortedByTitleMap.get(title);
 			oldSongsSet.add(newSong);
 		} else {
 			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(this.sbt);
 			newSongsSet.add(newSong);
-			this.sortedByTitleMap.put(newSong.getTitle(), newSongsSet);
+			this.sortedByTitleMap.put(title, newSongsSet);
 		}
+		//update parser
+		this.titleParser.put(title.toLowerCase(), title);
 	}
 	
 	/*
@@ -92,14 +103,16 @@ public class SongsLibrary {
 	//this method add SongInfo object and sort arraylist as above.
 	
 	private void addArtist(SongInfo newSong) {
-		if(newSong != null && this.sortedByArtistMap.keySet().contains(newSong.getArtist())) {
-			TreeSet<SongInfo> oldSongsSet = sortedByArtistMap.get(newSong.getArtist());
+		String artist = newSong.getArtist();
+		if(newSong != null && this.sortedByArtistMap.keySet().contains(artist)) {
+			TreeSet<SongInfo> oldSongsSet = sortedByArtistMap.get(artist);
 			oldSongsSet.add(newSong);
 		} else {
 			TreeSet<SongInfo> newSongsSet = new TreeSet<SongInfo>(this.sba);
 			newSongsSet.add(newSong);
-			this.sortedByArtistMap.put(newSong.getArtist(), newSongsSet);
+			this.sortedByArtistMap.put(artist, newSongsSet);
 		}
+		this.artistParser.put(artist.toLowerCase(), artist);
 	}
 	
 	//this method add SongInfo object into treemap and sort its key(tags) and its  
@@ -125,17 +138,19 @@ public class SongsLibrary {
 					value.add(newSong);
 					this.sortedByTagMap.put(key, value);
 				}
+				this.tagParser.put(key.toLowerCase(), key);
 			}
 		} catch(Exception e) {
 			System.out.println("add Tag exception");
 		}
+		
 	}
 	
 	//This method add trackId to trackIdMap.
 	
 	private void addTrackId(SongInfo newSong) {
 		if(newSong != null) {
-			this.trackIdMap.put(newSong.getTrackId().toUpperCase(), newSong);
+			this.trackIdMap.put(newSong.getTrackId(), newSong);
 		}
 	}
 	
@@ -201,13 +216,20 @@ public class SongsLibrary {
 //              "title":"Oh My God"
 //           }
 	
-	public JsonObject searchByArtist(String artist) {
+	private JsonObject searchByArtist(String artist) {
 		this.rwl.lockRead();
-		
+		String lowerCaseArtist = artist.toLowerCase();
+		lowerCaseArtist = this.artistParser.get(lowerCaseArtist);
+		String searchKey;
+		if(lowerCaseArtist != null) {
+			searchKey = lowerCaseArtist;
+		} else {
+			searchKey = artist;
+		}
 		JsonObject result = new JsonObject();
 		//Create JsonArray contains all the similar songs for the title as following.
 		JsonArray similarList = new JsonArray();
-		TreeSet<SongInfo> songsList = this.sortedByArtistMap.get(artist);
+		TreeSet<SongInfo> songsList = this.sortedByArtistMap.get(searchKey);
 		//Only if our library has the artist, we can find the similar songs.
 		ArrayList<JsonObject> similarArray = new ArrayList<JsonObject>();
 		if(songsList != null) {
@@ -216,7 +238,7 @@ public class SongsLibrary {
 				if(similarId != null) {
 					for(String id: similarId) {
 						if(this.trackIdMap.keySet().contains(id) && !similarArray.contains
-								(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
+							(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
 					}
 				}
 			}
@@ -252,12 +274,19 @@ public class SongsLibrary {
 //              "title":"Oh My God"
 //           }
 	
-	public JsonObject searchByTitle(String title) {
+	private JsonObject searchByTitle(String title) {
 		this.rwl.lockRead();
-		
+		String lowerCaseTitle = title.toLowerCase();
+		lowerCaseTitle = this.titleParser.get(lowerCaseTitle);
+		String searchKey;
+		if(lowerCaseTitle != null) {
+			searchKey = lowerCaseTitle;
+		} else {
+			searchKey = title;
+		}
 		JsonObject result = new JsonObject();
 		JsonArray similarList = new JsonArray();
-		TreeSet<SongInfo> songsList = this.sortedByTitleMap.get(title);
+		TreeSet<SongInfo> songsList = this.sortedByTitleMap.get(searchKey);
 		ArrayList<JsonObject> similarArray = new ArrayList<JsonObject>();
 		if(songsList != null) {
 			for(SongInfo song: songsList) {
@@ -287,10 +316,17 @@ public class SongsLibrary {
 	}
 	
 	//This method take tag as input, return all song under the tag as JsonObject.
-	public JsonObject searchByTag(String tag) {
+	private JsonObject searchByTag(String tag) {
 		this.rwl.lockRead();
-		
-		TreeSet<SongInfo> songsList = this.sortedByTagMap.get(tag);
+		String lowerCaseTag = tag.toLowerCase();
+		lowerCaseTag = this.tagParser.get(lowerCaseTag);
+		String searchKey;
+		if(lowerCaseTag != null) {
+			searchKey = lowerCaseTag;
+		} else {
+			searchKey = tag;
+		}
+		TreeSet<SongInfo> songsList = this.sortedByTagMap.get(searchKey);
 		JsonArray similarList = new JsonArray();
 		JsonObject result = new JsonObject();
 		if(songsList != null) {
@@ -362,17 +398,90 @@ public class SongsLibrary {
 		this.rwl.unlockRead();
 	}
 	
+	//This method is beta edition for partial search.
+	public JsonObject partialSearchByArtist(String request) {
+		rwl.lockRead();
+		JsonObject result = new JsonObject();
+		String lowerCaseRequest = request.toLowerCase();
+		String search = null;
+		Set<String> artistsList = this.artistParser.keySet();
+		for(String a: artistsList) {
+			if(a.contains(lowerCaseRequest)) {
+				search = this.artistParser.get(a);
+				result.add(search, this.searchByArtist(search));
+			}
+		}
+		rwl.unlockRead();
+		return result;
+	}
+	
+	public JsonObject partialSearchByTitle(String request) {
+		rwl.lockRead();
+		JsonObject result = new JsonObject();
+		String lowerCaseRequest = request.toLowerCase();
+		String search = null;
+		Set<String> titlesList = this.titleParser.keySet();
+		for(String a: titlesList) {
+			if(a.contains(lowerCaseRequest)) {
+				search = this.titleParser.get(a);
+				result.add(search, this.searchByTitle(search));
+			}
+		}
+		rwl.unlockRead();
+		return result;
+	}
+	
+	public JsonObject partialSearchByTag(String request) {
+		rwl.lockRead();
+		JsonObject result = new JsonObject();
+		String lowerCaseRequest = request.toLowerCase();
+		String search = null;
+		Set<String> tagsList = this.tagParser.keySet();
+		for(String a: tagsList) {
+			if(a.contains(lowerCaseRequest)) {
+				search = this.tagParser.get(a);
+				result.add(search, this.searchByTag(search));
+			}
+		}
+		rwl.unlockRead();
+		return result;
+	}
+	
+	
 	//This Method return the Artists list in alphabetical order. 
 	public Set<String> listArtists(){
-		return this.sortedByArtistMap.keySet();
+		rwl.lockRead();
+		try {
+			TreeSet<String> result = new TreeSet<String>();
+			for(String a: this.sortedByArtistMap.keySet()) {
+				result.add(a);
+			}
+			return result;
+		} finally {
+			rwl.unlockRead();
+		}
+		
 	}
 	
 	//This Method take a song's Id as input, return a SongInfo object which have this Id.
 	public SongInfo getSong(String trackId) {
-		return this.trackIdMap.get(trackId);
+		rwl.lockRead();
+		try {
+			if(trackIdMap.get(trackId) != null) return this.trackIdMap.get(trackId).clone();//Sometimes the requested song is not in the trackId map. Then we returen null.
+			return null;
+		} finally {
+			rwl.unlockRead();
+		}
 	}
 	
 	public int size() {
-		return trackIdMap.size();
+		rwl.lockRead();
+		try {
+			return trackIdMap.size();
+		} finally {
+			rwl.unlockRead();
+		}
 	}
+	
+	
 }

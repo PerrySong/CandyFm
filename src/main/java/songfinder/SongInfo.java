@@ -82,4 +82,9 @@ public class SongInfo {
 		return artist;
 	}
 	
+	public SongInfo clone() {
+		SongInfo result = new SongInfo(this.artist, this.title, this.tags, this.trackId, this.similarSong);
+		return result;
+	}
+	
 }
