@@ -40,6 +40,8 @@ public class SongsLibrary {
 	private final SortedByTitle sbt;
 	private final SortedByArtist sba;
 	private final SortedByTrackId sbti;
+	private static final String ARTIST = "artist";
+	private static final String TITLE ="title";
 	
 	public SongsLibrary() {
 		this.sortedByTitleMap = new TreeMap<String, TreeSet<SongInfo>>();
@@ -116,7 +118,7 @@ public class SongsLibrary {
 	}
 	
 	//this method add SongInfo object into treemap and sort its key(tags) and its  
-	//value (arraylist).  
+	//value (arraylist). 
 	
 	private void addTag(SongInfo newSong) {
 		String key = new String();
@@ -154,8 +156,8 @@ public class SongsLibrary {
 		}
 	}
 	
-		// This method takes sortWay and writePath as parameters, write songs info in the given writePath
-		// in a wanted sortWay.
+	// This method takes sortWay and writePath as parameters, write songs info in the given writePath
+	// in a wanted sortWay.	
 	
 	public void saveToFile(String order,String writePath) {
 		this.rwl.lockRead();
@@ -201,92 +203,32 @@ public class SongsLibrary {
 		this.rwl.unlockRead();
 	}	
 	
-//	The following method take input as artist's name, return all similar songs as a json Object like this:
-//	{
-//        "artist":"Busta Rhymes",
-//        "similars":[
-//           {
-//              "artist":"DJ Quik",
-//              "trackId":"TRAAMJY128F92F5919",
-//              "title":"Born and Raised In Compton"
-//           },
-//           {
-//              "artist":"Sticky Fingaz",
-//              "trackId":"TRAAZBD128F427A97D",
-//              "title":"Oh My God"
-//           }
-	
-	private JsonObject searchByArtist(String artist) {
+	//This method is a helper method for certain type of searching
+	private JsonObject search(String request, String SearchType) {
 		this.rwl.lockRead();
-		String lowerCaseArtist = artist.toLowerCase();
-		lowerCaseArtist = this.artistParser.get(lowerCaseArtist);
-		String searchKey;
-		if(lowerCaseArtist != null) {
-			searchKey = lowerCaseArtist;
-		} else {
-			searchKey = artist;
-		}
-		JsonObject result = new JsonObject();
-		//Create JsonArray contains all the similar songs for the title as following.
-		JsonArray similarList = new JsonArray();
-		TreeSet<SongInfo> songsList = this.sortedByArtistMap.get(searchKey);
-		//Only if our library has the artist, we can find the similar songs.
-		ArrayList<JsonObject> similarArray = new ArrayList<JsonObject>();
-		if(songsList != null) {
-			for(SongInfo song: songsList) {
-				TreeSet<String> similarId = song.getSimilarId();
-				if(similarId != null) {
-					for(String id: similarId) {
-						if(this.trackIdMap.keySet().contains(id) && !similarArray.contains
-							(this.trackIdMap.get(id).castToJsonObject())) similarArray.add(this.trackIdMap.get(id).castToJsonObject());
-					}
-				}
+		String lowerCaseRequest = request.toLowerCase();
+		TreeSet<SongInfo> songsList;
+		if(SearchType.equals(TITLE)) {
+			lowerCaseRequest = this.titleParser.get(lowerCaseRequest);
+			String searchKey;
+			if(lowerCaseRequest != null) {
+				searchKey = lowerCaseRequest;
+			} else {
+				searchKey = request;
 			}
-		}	
-		Collections.sort(similarArray, new Comparator<JsonObject>() {
-			@Override
-			public int compare(JsonObject obj1, JsonObject obj2) {
-				return (obj1.get("trackId").getAsString()).compareTo(obj2.get("trackId").getAsString());
-			}
-		});	
-		for(JsonObject jsobj: similarArray) {
-			similarList.add(jsobj);
-		}
-		//Create JsonObject 
-		result.addProperty("artist", artist);
-		result.add("similars", similarList);
-		this.rwl.unlockRead();
-		return result;
-	}
-	
-//	The following method take input as title, return all similar songs as a json Object like this:
-//	{
-//        "artist":"Busta Rhymes",
-//        "similars":[
-//           {
-//              "artist":"DJ Quik",
-//              "trackId":"TRAAMJY128F92F5919",
-//              "title":"Born and Raised In Compton"
-//           },
-//           {
-//              "artist":"Sticky Fingaz",
-//              "trackId":"TRAAZBD128F427A97D",
-//              "title":"Oh My God"
-//           }
-	
-	private JsonObject searchByTitle(String title) {
-		this.rwl.lockRead();
-		String lowerCaseTitle = title.toLowerCase();
-		lowerCaseTitle = this.titleParser.get(lowerCaseTitle);
-		String searchKey;
-		if(lowerCaseTitle != null) {
-			searchKey = lowerCaseTitle;
+			songsList = this.sortedByTitleMap.get(searchKey);
 		} else {
-			searchKey = title;
+			lowerCaseRequest = this.artistParser.get(lowerCaseRequest);
+			String searchKey;
+			if(lowerCaseRequest != null) {
+				searchKey = lowerCaseRequest;
+			} else {
+				searchKey = request;
+			}
+			songsList = this.sortedByArtistMap.get(searchKey);
 		}
 		JsonObject result = new JsonObject();
 		JsonArray similarList = new JsonArray();
-		TreeSet<SongInfo> songsList = this.sortedByTitleMap.get(searchKey);
 		ArrayList<JsonObject> similarArray = new ArrayList<JsonObject>();
 		if(songsList != null) {
 			for(SongInfo song: songsList) {
@@ -309,14 +251,27 @@ public class SongsLibrary {
 			similarList.add(jsobj);
 		}
 		//Create JsonObject 
-		result.add("similars", similarList);
-		result.addProperty("title", title);
+		if(SearchType.equals(TITLE)) {
+			result.add("similars", similarList);
+			result.addProperty("title", request);
+		} else {
+			result.addProperty("artist", request);
+			result.add("similars", similarList);
+		}
 		this.rwl.unlockRead();
 		return result;
 	}
 	
+	public JsonObject searchByTitle(String title) {
+		return this.search(title, TITLE);// This method is thread safe
+	}
+			
+	public JsonObject searchByArtist(String artist) {
+		return this.search(artist, ARTIST);// This method is thread safe
+	}
+	
 	//This method take tag as input, return all song under the tag as JsonObject.
-	private JsonObject searchByTag(String tag) {
+	public JsonObject searchByTag(String tag) {
 		this.rwl.lockRead();
 		String lowerCaseTag = tag.toLowerCase();
 		lowerCaseTag = this.tagParser.get(lowerCaseTag);
@@ -340,64 +295,6 @@ public class SongsLibrary {
 		return result;
 	}
 	
-	
-	//This method take JsonObject as input, which contains the search request and return the search result as JsonObject.
-	private JsonObject search(JsonObject request) {
-		JsonObject result = new JsonObject();
-		JsonArray artists = new JsonArray();
-		JsonArray titles = new JsonArray();
-		JsonArray tags = new JsonArray();
-		JsonArray arSimilars = new JsonArray();
-		JsonArray tiSimilars = new JsonArray();
-		JsonArray taSimilars = new JsonArray();
-		//Individually search by artist, by title and by tag. 
-		artists = request.getAsJsonArray("searchByArtist");
-		titles = request.getAsJsonArray("searchByTitle");
-		tags = request.getAsJsonArray("searchByTag");
-		//If the request contains "artist", we search each artist's similar song, and add it to a JsonArray.
-		if(artists != null && artists.size() >= 1) {
-			for(JsonElement artist: artists) {
-				arSimilars.add(searchByArtist(artist.getAsString()));	
-			}
-			//We add the JsonArray to result, associated with "searchByArtist".
-			result.add("searchByArtist", arSimilars);
-		}
-		//If the request contains "tag", we search each tag's similar song, and add it to a JsonArray.
-		if(tags != null && tags.size() >= 1) {
-			for(JsonElement tag: tags) {				
-				taSimilars.add(searchByTag(tag.getAsString()));				
-			}
-			//We add the JsonArray to result, associated with "searchByTag".
-			result.add("searchByTag", taSimilars);
-		}		
-		//If the request contains title, we search each title's similar song, and add it to a JsonArray
-		if(titles != null && titles.size() >= 1) {			
-			for(JsonElement title: titles) {
-				tiSimilars.add(searchByTitle(title.getAsString()));
-			}
-			//We add the JsonArray to result, associated with "searchByTiltle".
-			result.add("searchByTitle", tiSimilars);
-		}
-		return result;
-	}
-	
-	//This method take JsonObject search request and save the result under the given directory.
-	public void saveSearchTaskResult(String writePath, JsonObject request) {	
-		this.rwl.lockRead();
-		//Search songs according to request
-		JsonObject result = this.search(request);	
-		Path outpath = Paths.get(writePath);
-		//Create the file.
-		outpath.getParent().toFile().mkdir();
-		try(BufferedWriter output = Files.newBufferedWriter(outpath)) {
-			//Write the result to the file.
-			output.write(result.toString());
-		} catch (IOException e) {
-			System.out.println("Exception in saveSearchTaskResult in SongLibrary class!! " + e.getMessage());
-		}
-		this.rwl.unlockRead();
-	}
-	
 	//This method is beta edition for partial search.
 	public JsonObject partialSearchByArtist(String request) {
 		rwl.lockRead();
@@ -408,7 +305,7 @@ public class SongsLibrary {
 		for(String a: artistsList) {
 			if(a.contains(lowerCaseRequest)) {
 				search = this.artistParser.get(a);
-				result.add(search, this.searchByArtist(search));
+				result.add(search, this.search(search, ARTIST));
 			}
 		}
 		rwl.unlockRead();
@@ -424,7 +321,7 @@ public class SongsLibrary {
 		for(String a: titlesList) {
 			if(a.contains(lowerCaseRequest)) {
 				search = this.titleParser.get(a);
-				result.add(search, this.searchByTitle(search));
+				result.add(search, this.search(search, TITLE));
 			}
 		}
 		rwl.unlockRead();

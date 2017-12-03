@@ -51,7 +51,8 @@ public class Driver {
 			songs.buildMusicLibrary(threads);
 			//If there is a search rquest argument, we invoke the search method and save the search result in the required directory.
 			if(command.getSearchRequest() != null && command.getSearchOutput() != null) {
-				songs.getSongsLibrary().saveSearchTaskResult(command.getSearchOutput(), command.getSearchRequest());;
+				ForJunitTest test = new ForJunitTest(songs.getSongsLibrary());
+				test.saveSearchTaskResult(command.getSearchOutput(), command.getSearchRequest());;
 			}
 			songs.getSongsLibrary().saveToFile(order, output);
 		}
