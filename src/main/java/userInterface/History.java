@@ -64,5 +64,6 @@ public class History extends BaseServlet{
 		out.println("<div><a href=\"/search\">Main Page</a></div>");
 		out.println("<div><h3>No search history</h3></div>");
 		out.println(footer());
+		
 	}
 }
