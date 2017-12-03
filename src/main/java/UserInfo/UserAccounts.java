@@ -22,7 +22,7 @@ public class UserAccounts {
 	}
 	
 	public boolean signIn(String username, String password) {
-		rwl.lockRead();
+		rwl.lockWrite();
 		try {
 			if(this.account.containsKey(username)) return false;
 			UserInfo newUser = new UserInfo();
@@ -30,7 +30,7 @@ public class UserAccounts {
 			this.account.put(username, newUser);
 			return true;
 		} finally {
-			rwl.unlockRead();
+			rwl.unlockWrite();
 		}
 	}
 	
