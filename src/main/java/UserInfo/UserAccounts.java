@@ -11,10 +11,10 @@ import songfinder.SongInfo;
 public class UserAccounts {
 	/*
 	 * This class provide user account library, store user account and associated password.
+	 * This calss is thread safe, all method use read write lock. If a method returns data, it returns the deep copy of the data.
 	 */
 	private HashMap<String, UserInfo> account;
 	private ReentrantLock rwl;
-	
 	
 	public UserAccounts() {
 		this.account = new HashMap<String, UserInfo>();
@@ -123,7 +123,7 @@ public class UserAccounts {
 		//Linked list allow us to access the most current added item first.
 		rwl.lockRead();
 		try {
-			return this.account.get(username).getFavoriteArtists();//getFavoriteArtists return the copy. It's thread safe.
+			return this.account.get(username).getFavoriteArtists();//getFavoriteArtists return the deep copied data. It's thread safe.
 		} finally {
 			rwl.unlockRead();
 		}
@@ -134,7 +134,7 @@ public class UserAccounts {
 		//Linked list allow us to access the most current added item first.
 		rwl.lockRead();
 		try {
-			return this.account.get(username).getFavoriteSong();//getFavoriteSongs return the copy. It's thread safe.
+			return this.account.get(username).getFavoriteSong();//getFavoriteSongs return the deep copied data. It's thread safe.
 		} finally {
 			rwl.unlockRead();
 		}

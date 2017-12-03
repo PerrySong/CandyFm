@@ -17,7 +17,7 @@ import concurrent.ReentrantLock;
 public class ArtistsLibrary {
 	/*
 	 * In this class, we store every artist's Information 
-	 * Thread safe, all methods return deep copy object and have rwl.
+	 * Thread safe, all methods return deep copy object and have rwl. Check.
 	 */
 	private ReentrantLock rwl;
 	private TreeMap<String, ArtistInfo> artistsMap; //For this TreeMap, the key is the artist mbid, the value is the artistInfo object
@@ -60,7 +60,6 @@ public class ArtistsLibrary {
 		try(BufferedWriter output = Files.newBufferedWriter(outpath)){
 			output.write(songObject.toString());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.rwl.unlockRead();

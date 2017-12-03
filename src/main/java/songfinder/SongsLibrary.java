@@ -25,6 +25,8 @@ public class SongsLibrary {
 	 * This class store SongInfo object in different sort method.
 	 * method: addSong, saveToFile, searchByArtist, searchByTitle, 
 	 * searchByTag, search, saveSearchTaskResult
+	 * 
+	 * This class thread safe. All method use read write lock as well as if they return data, they return deep copy of that data.
 	 */
 
 	private TreeMap<String, TreeSet<SongInfo>> sortedByTitleMap;
@@ -34,8 +36,7 @@ public class SongsLibrary {
 	private TreeMap<String, SongInfo> trackIdMap;
 	private HashMap<String, String> artistParser;//The key is lower case value is normal case
 	private HashMap<String, String> titleParser;//The key is lower case value is normal case
-	private HashMap<String, String> tagParser;//The key is lower case value is normal case
-	
+	private HashMap<String, String> tagParser;//The key is lower case value is normal case	
 	private ReentrantLock rwl;
 	private final SortedByTitle sbt;
 	private final SortedByArtist sba;
@@ -204,7 +205,7 @@ public class SongsLibrary {
 	}	
 	
 	//This method is a helper method for certain type of searching
-	private JsonObject search(String request, String SearchType) {
+	private JsonObject searchHelper(String request, String SearchType) {
 		this.rwl.lockRead();
 		String lowerCaseRequest = request.toLowerCase();
 		TreeSet<SongInfo> songsList;
@@ -263,11 +264,11 @@ public class SongsLibrary {
 	}
 	
 	public JsonObject searchByTitle(String title) {
-		return this.search(title, TITLE);// This method is thread safe
+		return this.searchHelper(title, TITLE);// This method is thread safe since searchHelper is thread safe
 	}
 			
 	public JsonObject searchByArtist(String artist) {
-		return this.search(artist, ARTIST);// This method is thread safe
+		return this.searchHelper(artist, ARTIST);// This method is thread safe since searchHelper is thread safe
 	}
 	
 	//This method take tag as input, return all song under the tag as JsonObject.
@@ -305,7 +306,7 @@ public class SongsLibrary {
 		for(String a: artistsList) {
 			if(a.contains(lowerCaseRequest)) {
 				search = this.artistParser.get(a);
-				result.add(search, this.search(search, ARTIST));
+				result.add(search, this.searchHelper(search, ARTIST));
 			}
 		}
 		rwl.unlockRead();
@@ -321,7 +322,7 @@ public class SongsLibrary {
 		for(String a: titlesList) {
 			if(a.contains(lowerCaseRequest)) {
 				search = this.titleParser.get(a);
-				result.add(search, this.search(search, TITLE));
+				result.add(search, this.searchHelper(search, TITLE));
 			}
 		}
 		rwl.unlockRead();
@@ -343,7 +344,6 @@ public class SongsLibrary {
 		rwl.unlockRead();
 		return result;
 	}
-	
 	
 	//This Method return the Artists list in alphabetical order. 
 	public Set<String> listArtists(){
@@ -379,6 +379,5 @@ public class SongsLibrary {
 			rwl.unlockRead();
 		}
 	}
-	
 	
 }
