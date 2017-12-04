@@ -7,6 +7,7 @@ import java.util.TreeSet;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 
 /*
@@ -83,7 +84,12 @@ public class SongInfo {
 	}
 	
 	public SongInfo clone() {
-		SongInfo result = new SongInfo(this.artist, this.title, this.tags, this.trackId, this.similarSong);
+		JsonArray tagClone = new JsonArray();
+		JsonArray similarSongClone = new JsonArray();
+		JsonParser parser = new JsonParser();
+		tagClone = (JsonArray)parser.parse(this.tags.toString());
+		similarSongClone = (JsonArray)parser.parse(this.similarSong.toString());
+		SongInfo result = new SongInfo(this.artist, this.title, tagClone, this.trackId, similarSongClone);
 		return result;
 	}
 	
