@@ -1,5 +1,6 @@
 package UserInfo;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.LinkedList;
 
@@ -15,7 +16,9 @@ public class UserInfo {
 	private String name;
 	private String history;
 	private LocalTime lastTime;
+	private LocalDate lastDate;
 	private LocalTime currentTime;
+	private LocalDate currentDate;
 	private LinkedList<SongInfo> favoriteSongs;//This map store users' favorite songs' urls.
 	private LinkedList<ArtistInfo> favoriteArtists;//This map store users' favorite artists' urls.
 	
@@ -25,6 +28,8 @@ public class UserInfo {
 		this.name = new String();
 		this.history = new String();
 		this.lastTime = LocalTime.now();
+		this.lastDate = LocalDate.now();
+		
 		this.favoriteSongs = new LinkedList<SongInfo>();
 		this.favoriteArtists = new LinkedList<ArtistInfo>();
 	}
@@ -62,17 +67,17 @@ public class UserInfo {
 	}
 	
 	public void updateTime() {
-		this.lastTime = LocalTime.now();
-	}
-	
-	public LocalTime getLastTime() {
-		return this.lastTime;
-	}
-	
-	public void setLastVisitTime(LocalTime lt) {
 		this.lastTime = this.currentTime;
-		this.currentTime = lt;
+		this.lastDate = this.currentDate;
+		this.currentTime = LocalTime.now();
+		this.currentDate = LocalDate.now();
 	}
+	
+	public String getLastTime() {
+		if(lastDate == null || lastTime == null) return null;
+		return this.lastDate.toString() + ", " + this.lastTime.toString();
+	}
+	
 	
 	public UserInfo clone() {
 		UserInfo result = new UserInfo();

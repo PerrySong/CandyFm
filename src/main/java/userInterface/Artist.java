@@ -30,6 +30,7 @@ public class Artist extends BaseServlet{
 		
 		System.out.println(artistName.toLowerCase());
 		ArtistInfo artist = artistsLibrary.getArtist(artistName.toLowerCase());
+		
 
 		if(request.getParameter("addToFav") != null && request.getParameter("addToFav").equals("true")){
 			accounts.addFavoriteArtist(username, artist);
@@ -40,6 +41,10 @@ public class Artist extends BaseServlet{
 		out.println(this.header("Artist Information"));
 		out.println("<a href=\"/search\">Main Page</a>");
 		out.println("<br><a href=\"/artists\">All Artists</a>");
+		if(artist == null) {
+			out.println("<br><br><h1>Sorry, we currently do not have this artist information.</h1>");
+			return;
+		}
 		out.println("<h1>Artist Information</h1><br>");
 		out.println("<h5>Artist Name: " + artist.getName() + "</h5><br><img src=\""+ artist.getImage() +"\">");
 		//This button allow login user to add this artist to his favorite list
@@ -49,7 +54,7 @@ public class Artist extends BaseServlet{
 					+ "<input type=\"hidden\" name=\"artistName\" value=\""+ URLEncoder.encode((artist.getName()), "UTF-8") +"\">"
 					+ "<button>Add to Favorite List!</button></form>");//IMPORTANT!!! Use <input type = submit> will cause your parameter become unreachble  
 		}
-		out.println("<br><h5>number of listener: " + splitNumber(artist.getListeners()) + "</h5>");
+		out.println("<br><h5>Number of listeners: " + splitNumber(artist.getListeners()) + "</h5>");
 		out.println("<h5>Play count: " + splitNumber(artist.getPlayCount()) + "</h5>");
 		out.println("<h5>Biography: </h5><p>" + artist.getBio() + "</p>");
 		

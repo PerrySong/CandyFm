@@ -58,7 +58,7 @@ public class UserAccounts {
 		rwl.lockRead();
 		try {
 			//We return the String, so it is thread safe.
-			if(account.get(username) != null && this.account.get(username).getLastTime() != null) return this.account.get(username).getLastTime().toString();
+			if(account.get(username) != null && this.account.get(username).getLastTime() != null) return this.account.get(username).getLastTime();
 			return "Never!!!";
 		} finally {
 			rwl.unlockRead();
@@ -68,7 +68,7 @@ public class UserAccounts {
 	public void setLastVisitTime(String username) {
 		rwl.lockWrite();
 		try {
-			this.account.get(username).setLastVisitTime(LocalTime.now());
+			this.account.get(username).updateTime();
 		} finally {
 			rwl.unlockWrite();
 		}
