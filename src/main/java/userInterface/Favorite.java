@@ -17,7 +17,6 @@ public class Favorite extends BaseServlet{
 	
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		UserAccounts userData = (UserAccounts) getServletConfig().getServletContext().getAttribute(USER);
-		ArtistsLibrary artistsLibrary = (ArtistsLibrary) getServletConfig().getServletContext().getAttribute(ARTISTS);
 		HttpSession session = request.getSession();
 		String username = (String)session.getAttribute(USERNAME);
 		if(request.getParameter("delete") != null) {
@@ -61,7 +60,7 @@ public class Favorite extends BaseServlet{
 			out.println("</form>");
 		}
 		if(start < table.size() - 20) {//If there is no song on the next page, we do not need the next button. 
-			out.println("<form action=\"/favorite\" method=\"post\">");
+			out.println("<form action=\"/favorite\" method=\"get\">");
 			out.println("<input type=\"hidden\" name=\"page\" value=\"" + (page + 1) + "\">");
 			out.println("<button>Next</button>");
 			out.println("</form>");
@@ -72,7 +71,6 @@ public class Favorite extends BaseServlet{
 	
 	public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		UserAccounts userData = (UserAccounts) getServletConfig().getServletContext().getAttribute(USER);
-		ArtistsLibrary artistsLibrary = (ArtistsLibrary) getServletConfig().getServletContext().getAttribute(ARTISTS);
 		HttpSession session = request.getSession();
 		String username = (String)session.getAttribute(USERNAME);
 		//
@@ -115,7 +113,7 @@ public class Favorite extends BaseServlet{
 		out.println("</table>");
 		out.println("Current Page: " + page + " Total Page: " + (int)Math.ceil((double)table.size()/20));
 		if(start > 0) {//If this is first page, we do not need the prev button.
-			out.println("<form action=\"/favorite\" method=\"get\">");
+			out.println("<form action=\"/favorite\" method=\"post\">");
 			out.println("<input type=\"hidden\" name=\"page\" value=\"" + (page -1) + "\">");
 			out.println("<button>Prev</button>");
 			out.println("</form>");

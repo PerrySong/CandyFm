@@ -51,7 +51,7 @@ public class SongsServlet extends BaseServlet {
 		//If the user logged in, we present his/her name and last visit time.
 		if(session.getAttribute(LOGIN) != null && (boolean)session.getAttribute(LOGIN)) {
 			String lastLoginTime = userData.getLastVisitTime(username);
-			out.println("<h3>Hi! " + username + ", you last visit time is:" + lastLoginTime + "</h3>");
+			out.println("<h3>Hi! " + username + ", you last visit time is: " + lastLoginTime + "</h3>");
 			out.println("<a href=\"/logout\">Log out</a>");
 		}
 		
@@ -175,7 +175,7 @@ public class SongsServlet extends BaseServlet {
 		//If the user logged in, we present his/her name and last visit time.
 		if(session.getAttribute(LOGIN) != null && (boolean)session.getAttribute(LOGIN)) {
 			String lastLoginTime = userData.getLastVisitTime(username);
-			out.println("<h3>Hi! " + username + ", you last visit time is:" + lastLoginTime + "</h3>");
+			out.println("<h3>Hi! " + username + ", you last visit time is: " + lastLoginTime + "</h3>");
 			out.println("<a href=\"/logout\">Log out</a>");
 		}
 		

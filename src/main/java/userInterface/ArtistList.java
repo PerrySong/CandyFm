@@ -68,7 +68,7 @@ public class ArtistList extends BaseServlet{
 			
 			out.println("<form action=\"/artists\" method=\"get\">");
 			out.println("<input type=\"hidden\" name=\"page\" value=\"" + (page -1) + "\">");
-			out.println("<button>Prev</botton>");
+			out.println("<button>Prev</button>");
 			out.println("</form>");
 			
 		}
@@ -82,7 +82,7 @@ public class ArtistList extends BaseServlet{
 		out.println("</form>");
 		if(startArtist < table.size() - 20) {//If there is no song on the next page, we do not need the next button. 
 			
-			out.println("<form action=\"/artists\" method=\"post\">");
+			out.println("<form action=\"/artists\" method=\"get\">");
 			out.println("<input type=\"hidden\" name=\"page\" value=\"" + (page + 1) + "\">");
 			out.println("<button>Next</botton>");
 			
