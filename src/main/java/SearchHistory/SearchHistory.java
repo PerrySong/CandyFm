@@ -14,9 +14,9 @@ public class SearchHistory {
 	/*
 	 * This class is for storing user's seach history.
 	 */
-	HashMap<String, LinkedList<SingleSearch>> history;
-	HashMap<SingleSearch, Integer> searchTimes; //Account times of search for each particular search
-	ReentrantLock rwl;
+	private HashMap<String, LinkedList<SingleSearch>> history;
+	private HashMap<SingleSearch, Integer> searchTimes; //Account times of search for each particular search
+	private ReentrantLock rwl;
 	
 	public SearchHistory() {
 		this.history = new HashMap<String, LinkedList<SingleSearch>>();
